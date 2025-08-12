@@ -51,7 +51,7 @@ data["Labour_Force_Growth"] = (
     .pct_change() 
 )
 
-mean_growth = (
+data["mean_growth"] = (
     data.groupby("country")["Labour_Force_Growth"]
     .mean()
     .reset_index()
