@@ -51,5 +51,7 @@ data["Labour_Force_Growth"] = (
     .pct_change() * 100
 )
 
+data["GDP_per_Worker"] = data["Real_GDP"] / data["Labour_Force"]
+
 # Preview
-print(data.tail(2050))
+st.write(data.tail(2050))
