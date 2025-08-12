@@ -73,6 +73,7 @@ LIS = st.number_input(
     min_value=0.0, max_value=1.0, value=0.5, step=0.01,
     format="%.2f"
 )
+A = st.number_input("Level of Technology:", min_value=1, max_value=100, value=10, step=1)
 S = st.number_input("Savings Rate:", min_value=0.0, max_value=1.0, value=0.2, step=0.01, format="%.2f")
 D = st.number_input("Depreciation Rate:", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
 T = st.number_input("Periods:", min_value=1, max_value=1000, value=100, step=1)
@@ -89,17 +90,17 @@ st.markdown(f"### Data for {country_name}")
 st.write(country_data[['date', 'Labour_Force', 'Real_GDP', 'Mean_Labour_Growth', 'GDPi']])
 
 # Calculate Ki rounded with user LIS
-Ki = round(Ki ** (1 / LIS), 4)
+Ki = round((Ki ** (1 / LIS))/A, 4)
 
-def solow_model(n, D, Ki, S, LIS, T):
+def solow_model(A, n, D, Ki, S, LIS, T):
     k = np.zeros(T)
     k[0] = Ki
     for t in range(1, T):
-        k[t] = (S / (1 + n)) * (k[t-1] ** LIS) + k[t-1] * (1 - D) / (1 + n)
+        k[t] = (S / (1 + n)) * (A*k[t-1] ** LIS) + k[t-1] * (1 - D) / (1 + n)
     return k
 
 # Run model
-k_path = solow_model(n, D, Ki, S, LIS, T)
+k_path = solow_model(A, n, D, Ki, S, LIS, T)
 
 # Plot
 time = list(range(T))
