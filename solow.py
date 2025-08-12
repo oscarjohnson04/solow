@@ -46,5 +46,10 @@ data['date'] = pd.to_datetime(data['date'], format='%Y')
 # Sort by country and date
 data = data.sort_values(by=["country", "date"], ascending=[True, False])
 
+data["Labour_Force_Growth"] = (
+    data.groupby("country")["Labour_Force"]
+    .pct_change() * 100
+)
+
 # Preview
 print(data.tail(2050))
