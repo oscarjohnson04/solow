@@ -7,16 +7,6 @@ import plotly.graph_objects as go
 
 st.title("Solow Growth Model Explorer")
 
-# User inputs for model parameters
-LIS = st.number_input(
-    "Labour Income Share (Will help determine capital per capita):",
-    min_value=0.0, max_value=1.0, value=0.5, step=0.01,
-    format="%.2f"
-)
-S = st.number_input("Savings Rate:", min_value=0.0, max_value=1.0, value=0.2, step=0.01, format="%.2f")
-D = st.number_input("Depreciation Rate:", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
-T = st.number_input("Periods:", min_value=1, max_value=1000, value=100, step=1)
-
 # Data loading parameters
 start_date = dt.datetime(1970, 1, 1)
 end_date = dt.datetime(2024, 1, 1)
@@ -77,6 +67,15 @@ solow_df = load_and_process_data()
 # Country selection
 countries = solow_df['country'].sort_values().unique()
 selected_country = st.selectbox("Select a country:", countries)
+
+LIS = st.number_input(
+    "Labour Income Share (Will help determine capital per capita):",
+    min_value=0.0, max_value=1.0, value=0.5, step=0.01,
+    format="%.2f"
+)
+S = st.number_input("Savings Rate:", min_value=0.0, max_value=1.0, value=0.2, step=0.01, format="%.2f")
+D = st.number_input("Depreciation Rate:", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
+T = st.number_input("Periods:", min_value=1, max_value=1000, value=100, step=1)
 
 country_data = solow_df[solow_df['country'] == selected_country].iloc[0]
 
