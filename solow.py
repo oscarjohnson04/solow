@@ -57,7 +57,7 @@ data["Mean_Labour_Growth"] = (
 
 data["GDPi"] = data["Real_GDP"] / data["Labour_Force"]
 
-df = data[['country', 'date', 'Labour_Force', 'Real_GDP', 'Mean_Labour_Growth', 'GDPi']
+df = data[['country', 'date', 'Labour_Force', 'Real_GDP', 'Mean_Labour_Growth', 'GDPi']]
 
 # Preview
 st.write(df.tail(2050))
