@@ -64,5 +64,7 @@ data["GDPi"] = data["Real_GDP"] / data["Labour_Force"]
 df = data[['country', 'date', 'Labour_Force', 'Real_GDP', 'Mean_Labour_Growth', 'GDPi']]
 solow_df = df.loc[df.groupby("country")["date"].idxmax()].reset_index(drop=True)
 
+solow_df['Ki'] = solow_df['GDPi']**(1/LIS)
+
 # Preview
 st.write(solow_df.tail(2050))
