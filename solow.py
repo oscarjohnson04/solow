@@ -51,8 +51,8 @@ data["Labour_Force_Growth"] = (
     .pct_change() 
 )
 
-mean_growth = data.groupby("country", as_index=False).agg(
-    Mean_Labour_Force_Growth_pct=("Labour_Force_Growth", "mean")
+data["Mean_Labour_Force_Growth_%"] = (
+    data.groupby("country")["Labour_Force_Growth"].transform("mean")
 )
 
 data["GDP_per_Worker"] = data["Real_GDP"] / data["Labour_Force"]
