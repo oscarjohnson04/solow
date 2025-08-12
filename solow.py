@@ -53,7 +53,7 @@ data["Labour_Force_Growth"] = (
 
 mean_growth = (
     data.groupby("country")["Labour_Force_Growth"]
-    .mean(skipna=True)
+    .mean()
     .reset_index()
     .rename(columns={"Labour_Force_Growth": "Mean_Labour_Force_Growth_%"})
 )
