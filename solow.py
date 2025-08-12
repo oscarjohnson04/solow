@@ -51,11 +51,13 @@ data["Labour_Force_Growth"] = (
     .pct_change() 
 )
 
-data["Mean_Labour_Force_Growth_%"] = (
+data["Mean_Labour_Growth"] = (
     data.groupby("country")["Labour_Force_Growth"].transform("mean")
 )
 
-data["GDP_per_Worker"] = data["Real_GDP"] / data["Labour_Force"]
+data["GDPi"] = data["Real_GDP"] / data["Labour_Force"]
+
+df = data[['country', 'date', 'Labour_Force', 'Real_GDP', 'Mean_Labour_Growth', 'GDPi']
 
 # Preview
-st.write(data.tail(2050))
+st.write(df.tail(2050))
