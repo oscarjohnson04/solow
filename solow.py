@@ -70,12 +70,12 @@ selected_country = st.selectbox("Select a country:", countries)
 
 LIS = st.number_input(
     "Labour Income Share (Will help determine capital per capita):",
-    min_value=0.0, max_value=1.0, value=0.5, step=0.01,
+    min_value=0.0, max_value=1.0, value=0.5, step=0.001,
     format="%.2f"
 )
-A = st.number_input("Level of Technology:", min_value=1, max_value=100, value=10, step=1)
-S = st.number_input("Savings Rate:", min_value=0.0, max_value=1.0, value=0.2, step=0.01, format="%.2f")
-D = st.number_input("Depreciation Rate:", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
+A = st.number_input("Level of Technology:", min_value=1, max_value=100, value=10, step=0.1)
+S = st.number_input("Savings Rate:", min_value=0.0, max_value=1.0, value=0.2, step=0.001, format="%.2f")
+D = st.number_input("Depreciation Rate:", min_value=0.0, max_value=1.0, value=0.05, step=0.001, format="%.2f")
 T = st.number_input("Periods:", min_value=1, max_value=1000, value=100, step=1)
 
 country_data = solow_df[solow_df['country'] == selected_country].iloc[0]
