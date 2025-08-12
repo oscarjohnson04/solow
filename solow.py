@@ -6,6 +6,10 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+LIS = st.number_input("Labour Income Share (Will help determine capital per capita):", min_value=0, max_value=1, value=0.5, step=0.01)
+S = st.number_input("Savings Rate:", min_value=0, max_value=1, value=0.2, step=0.01)
+D = st.number_input("Depreciation Rate:", min_value=0, max_value=1, value=0.05, step=0.01)
+
 # Set time period
 start_date = dt.datetime(1970, 1, 1)
 end_date = dt.datetime(2024, 1, 1)
