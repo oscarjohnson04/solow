@@ -48,7 +48,7 @@ data = data.sort_values(by=["country", "date"], ascending=[True, True])
 
 data["Labour_Force_Growth"] = (
     data.groupby("country")["Labour_Force"]
-    .pct_change() * 100
+    .pct_change() 
 )
 
 mean_growth = (
