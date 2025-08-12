@@ -51,6 +51,13 @@ data["Labour_Force_Growth"] = (
     .pct_change() * 100
 )
 
+mean_growth = (
+    data.groupby("country")["Labour_Force_Growth"]
+    .mean(skipna=True)
+    .reset_index()
+    .rename(columns={"Labour_Force_Growth": "Mean_Labour_Force_Growth_%"})
+)
+
 data["GDP_per_Worker"] = data["Real_GDP"] / data["Labour_Force"]
 
 # Preview
