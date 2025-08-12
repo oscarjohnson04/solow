@@ -44,7 +44,7 @@ data = data[~data['country'].isin(exclude_list)]
 data['date'] = pd.to_datetime(data['date'], format='%Y')
 
 # Sort by country and date
-data = data.sort_values(by=["country", "date"], ascending=[True, False])
+data = data.sort_values(by=["country", "date"], ascending=[True, True])
 
 data["Labour_Force_Growth"] = (
     data.groupby("country")["Labour_Force"]
