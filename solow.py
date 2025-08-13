@@ -121,7 +121,7 @@ def isolow_model(k_path, S, A, IC):
 i_path = isolow_model(k_path, S, A, IC)
 
 # Plot
-time = List(range(T))
+time = list(range(T))
 
 fig = go.Figure()
 fig.add_trace(go.Scatter(
