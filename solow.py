@@ -161,8 +161,6 @@ fig.update_layout(
     template='plotly_white'
 )
 
-st.plotly_chart(fig, use_container_width=True)
-
 fig1 = go.Figure()
 fig1.add_trace(go.Scatter(
     x=time,
@@ -177,8 +175,6 @@ fig1.update_layout(
     yaxis_title='Output per effective worker (Y)',
     template='plotly_white'
 )
-
-st.plotly_chart(fig1, use_container_width=True)
 
 fig2 = go.Figure()
 fig2.add_trace(go.Scatter(
@@ -195,8 +191,6 @@ fig2.update_layout(
     template='plotly_white'
 )
 
-st.plotly_chart(fig2, use_container_width=True)
-
 fig3 = go.Figure()
 fig3.add_trace(go.Scatter(
     x=time,
@@ -211,8 +205,6 @@ fig3.update_layout(
     yaxis_title='Consumption per effective worker (C)',
     template='plotly_white'
 )
-
-st.plotly_chart(fig3, use_container_width=True)
 
 fig4 = go.Figure()
 fig4.add_trace(go.Scatter(
@@ -229,5 +221,13 @@ fig4.update_layout(
     template='plotly_white'
 )
 
-st.plotly_chart(fig4, use_container_width=True)
+col3, col4 = st.columns(2)
 
+with col3:
+    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig2, use_container_width=True)
+
+with col4:
+    st.plotly_chart(fig3, use_container_width=True)
+    st.plotly_chart(fig4, use_container_width=True)
