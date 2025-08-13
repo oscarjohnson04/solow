@@ -104,7 +104,7 @@ k_path = solow_model(A, n, D, Ki, S, LIS, T)
 
 def ysolow_model(k_path, A, LIS):
     y = np.zeros(T)
-    y[0] = country_data['GDPi']
+    y[0] = A*Ki**LIS
     for t in range(1, T):
         y[t] = A * k_path[t-1]**LIS
     return y
@@ -142,7 +142,7 @@ fig1.add_trace(go.Scatter(
 fig1.update_layout(
     title=f"Solow Output Growth Model - {country_name}",
     xaxis_title='Periods',
-    yaxis_title='Output per effective worker (k)',
+    yaxis_title='Output per effective worker (Y)',
     template='plotly_white'
 )
 
