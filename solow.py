@@ -136,7 +136,7 @@ def wsolow_model(k_path, A, IC):
         W[t] = (1-IC)*A*k_path[t-1]**IC
     return W
 
-w_path = csolow_model(k_path, A, IC)
+w_path = wsolow_model(k_path, A, IC)
 
 # Plot
 time = list(range(T))
