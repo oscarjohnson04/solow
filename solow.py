@@ -91,7 +91,7 @@ selected_country = st.selectbox("Select a country:", countries)
 
 # Current country row
 row = solow_df.loc[solow_df["country"] == selected_country].iloc[0]
-y_data = float(row["GDP_per_worker"])                   # observed GDP per worker (latest)
+y_data = float(row["GDPi"])                   # observed GDP per worker (latest)
 n = float(row["Mean_Labour_Growth"]) if pd.notna(row["Mean_Labour_Growth"]) else 0.01
 N0 = float(row["Labour_Force"])
 country_name = row["country"]
