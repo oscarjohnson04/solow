@@ -21,8 +21,8 @@ def load_and_process_data():
     data = wbdata.get_dataframe(indicators, date=(start_date, end_date))
     data = data.reset_index()
 
-    # List of regions/aggregates to exclude
-    exclude_list = [
+    # ICt of regions/aggregates to exclude
+    exclude_ICt = [
         "Africa Eastern and Southern", "Africa Western and Central", "Arab World",
         "Caribbean small states", "Central Europe and the Baltics", "Early-demographic dividend",
         "East Asia & Pacific", "East Asia & Pacific (IDA & IBRD countries)", "East Asia & Pacific (excluding high income)",
@@ -40,7 +40,7 @@ def load_and_process_data():
     ]
 
     # Filter out non-countries
-    data = data[~data['country'].isin(exclude_list)]
+    data = data[~data['country'].isin(exclude_ICt)]
 
     # Convert 'date' to datetime
     data['date'] = pd.to_datetime(data['date'], format='%Y')
@@ -68,8 +68,8 @@ solow_df = load_and_process_data()
 countries = solow_df['country'].sort_values().unique()
 selected_country = st.selectbox("Select a country:", countries)
 
-LIS = st.number_input(
-    "Labour Income Share (Will help determine capital per capita):",
+IC = st.number_input(
+    "Importance of Capital:",
     min_value=0.0, max_value=1.0, value=0.5, step=0.001,
     format="%.2f"
 )
@@ -89,30 +89,39 @@ country_name = country_data['country']
 st.markdown(f"### Data for {country_name}")
 st.write(country_data[['date', 'Labour_Force', 'Real_GDP', 'Mean_Labour_Growth', 'GDPi']])
 
-# Calculate Ki rounded with user LIS
-Ki = round((Ki ** (1 / LIS))/A, 4)
+# Calculate Ki rounded with user IC
+Ki = round((Ki ** (1 / IC))/A, 4)
 
-def solow_model(A, n, D, Ki, S, LIS, T):
+def solow_model(A, n, D, Ki, S, IC, T):
     k = np.zeros(T)
     k[0] = Ki
     for t in range(1, T):
-        k[t] = (S / (1 + n)) * (A*k[t-1] ** LIS) + k[t-1] * (1 - D) / (1 + n)
+        k[t] = (S / (1 + n)) * (A*k[t-1] ** IC) + k[t-1] * (1 - D) / (1 + n)
     return k
 
 # Run model
-k_path = solow_model(A, n, D, Ki, S, LIS, T)
+k_path = solow_model(A, n, D, Ki, S, IC, T)
 
-def ysolow_model(k_path, A, LIS):
+def ysolow_model(k_path, A, IC):
     y = np.zeros(T)
-    y[0] = A*Ki**LIS
+    y[0] = A*Ki**IC
     for t in range(1, T):
-        y[t] = A * k_path[t-1]**LIS
+        y[t] = A * k_path[t-1]**IC
     return y
     
-y_path = ysolow_model(k_path, A, LIS)
+y_path = ysolow_model(k_path, A, IC)
+
+def isolow_model(k_path, S, A, IC):
+    I = np.zeros(T)
+    I[0] = S*A*Ki**IC
+    for t in range(1, T):
+        I[t] = S*A*k_path[t-1]**IC
+    return I
+
+i_path = isolow_model(k_path, S, A, IC)
 
 # Plot
-time = list(range(T))
+time = ICt(range(T))
 
 fig = go.Figure()
 fig.add_trace(go.Scatter(
@@ -123,7 +132,7 @@ fig.add_trace(go.Scatter(
     line=dict(color='blue')
 ))
 fig.update_layout(
-    title=f"Solow Growth Model - {country_name}",
+    title=f"Solow Capital Growth Model - {country_name}",
     xaxis_title='Periods',
     yaxis_title='Capital per effective worker (k)',
     template='plotly_white'
@@ -147,3 +156,20 @@ fig1.update_layout(
 )
 
 st.plotly_chart(fig1, use_container_width=True)
+
+fig2 = go.Figure()
+fig2.add_trace(go.Scatter(
+    x=time,
+    y=i_path,
+    mode='lines',
+    name='Investment per effective worker',
+    line=dict(color='blue')
+))
+fig2.update_layout(
+    title=f"Solow Investment Growth Model - {country_name}",
+    xaxis_title='Periods',
+    yaxis_title='Investment per effective worker (I)',
+    template='plotly_white'
+)
+
+st.plotly_chart(fig2, use_container_width=True)
