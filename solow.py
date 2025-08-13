@@ -5,266 +5,185 @@ import datetime as dt
 import numpy as np
 import plotly.graph_objects as go
 
+# --- Page config must be first Streamlit call ---
+st.set_page_config(page_title="Solow Growth Model Explorer", layout="wide")
 st.title("Solow Growth Model Explorer")
-st.set_page_config(layout="wide")
 
-# Data loading parameters
-start_date = dt.datetime(1970, 1, 1)
-end_date = dt.datetime(2024, 1, 1)
-indicators = {
-    "SL.TLF.TOTL.IN": "Labour_Force",
-    "NY.GDP.MKTP.KD": "Real_GDP"
+# -----------------------
+# Parameters & Indicators
+# -----------------------
+START_DATE = dt.datetime(1970, 1, 1)
+END_DATE = dt.datetime(2024, 1, 1)
+INDICATORS = {
+    "SL.TLF.TOTL.IN": "Labour_Force",   # Labour force (total)
+    "NY.GDP.MKTP.KD": "Real_GDP"        # GDP (constant 2015 US$)
 }
 
+# -----------------------
+# Data loading & cleaning
+# -----------------------
 @st.cache_data(show_spinner=True)
-def load_and_process_data():
-    # Fetch data
-    data = wbdata.get_dataframe(indicators, date=(start_date, end_date))
-    data = data.reset_index()
+def load_and_process_data(start_date, end_date, indicators):
+    """
+    Download World Bank data, keep real countries only, compute growth & GDP per worker,
+    and return the most recent observation per country.
+    """
+    # Fetch all entities
+    raw = wbdata.get_dataframe(indicators, date=(start_date, end_date)).reset_index()
 
-    # ICt of regions/aggregates to exclude
-    exclude_ICt = [
-        "Africa Eastern and Southern", "Africa Western and Central", "Arab World",
-        "Caribbean small states", "Central Europe and the Baltics", "Early-demographic dividend",
-        "East Asia & Pacific", "East Asia & Pacific (IDA & IBRD countries)", "East Asia & Pacific (excluding high income)",
-        "Euro area", "Europe & Central Asia", "Europe & Central Asia (IDA & IBRD countries)", "Europe & Central Asia (excluding high income)",
-        "Fragile and conflict affected situations", "Heavily indebted poor countries (HIPC)", "High income",
-        "IBRD only", "IDA & IBRD total", "IDA blend", "IDA only", "IDA total",
-        "Late-demographic dividend", "Latin America & Caribbean", "Latin America & Caribbean (excluding high income)",
-        "Latin America & the Caribbean (IDA & IBRD countries)", "Least developed countries: UN classification",
-        "Low & middle income", "Low income", "Lower middle income", "Middle East, North Africa, Afghanistan & Pakistan",
-        "Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)", "Middle East, North Africa, Afghanistan & Pakistan (excluding high income)",
-        "Middle income", "North America", "Not classified", "OECD members", "Other small states", "Pacific island small states",
-        "Post-demographic dividend", "Pre-demographic dividend", "Small states", "South Asia", "South Asia (IDA & IBRD)",
-        "Sub-Saharan Africa", "Sub-Saharan Africa (IDA & IBRD countries)", "Sub-Saharan Africa (excluding high income)",
-        "Upper middle income", "Middle East, North Africa, Afghanistan & Pakistan", "Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)"
-    ]
+    # Keep only real countries (exclude aggregates)
+    countries_meta = wbdata.get_country()  # list of dicts
+    real_country_names = {c["name"] for c in countries_meta if c.get("region", {}).get("id") != "NA"}
+    data = raw[raw["country"].isin(real_country_names)].copy()
 
-    # Filter out non-countries
-    data = data[~data['country'].isin(exclude_ICt)]
+    # Ensure proper dtypes
+    data["date"] = pd.to_datetime(data["date"], format="%Y", errors="coerce")
+    data = data.sort_values(["country", "date"])
 
-    # Convert 'date' to datetime
-    data['date'] = pd.to_datetime(data['date'], format='%Y')
+    # Drop rows missing core inputs before calculations
+    data = data.dropna(subset=["Labour_Force", "Real_GDP"])
 
-    # Sort by country and date
-    data = data.sort_values(by=['country', 'date'])
+    # Labour force growth (per year, as a rate)
+    data["Labour_Force_Growth"] = (
+        data.groupby("country")["Labour_Force"].pct_change()
+    )
 
-    # Calculate labour force growth rate (pct_change)
-    data['Labour_Force_Growth'] = data.groupby('country')['Labour_Force'].pct_change()
+    # Mean labour force growth per country (repeat per row)
+    data["Mean_Labour_Growth"] = data.groupby("country")["Labour_Force_Growth"].transform("mean")
 
-    # Mean labour force growth (same value for each row in a country)
-    data['Mean_Labour_Growth'] = data.groupby('country')['Labour_Force_Growth'].transform('mean')
+    # GDP per worker (do NOT round yet to keep precision for model inversion)
+    data["GDP_per_worker"] = data["Real_GDP"] / data["Labour_Force"]
 
-    # GDP per worker rounded to 2 decimals
-    data['GDPi'] = (data['Real_GDP'] / data['Labour_Force']).round(2)
-
-    # For each country, keep only most recent data point
-    latest = data.loc[data.groupby('country')['date'].idxmax()].reset_index(drop=True)
+    # Keep the most recent row per country with valid GDP_per_worker
+    latest_idx = data.dropna(subset=["GDP_per_worker"]).groupby("country")["date"].idxmax()
+    latest = data.loc[latest_idx].reset_index(drop=True)
 
     return latest
 
-solow_df = load_and_process_data()
+solow_df = load_and_process_data(START_DATE, END_DATE, INDICATORS)
 
-countries = solow_df['country'].sort_values().unique()
-
-col1, col2 = st.columns(2)
-
-with col1:
-    # Country selection
-    selected_country = st.selectbox("Select a country:", countries)
-    IC = st.number_input(
-        "Importance of Capital:",
-        min_value=0.0, max_value=1.0, value=0.5, step=0.001,
-        format="%.2f"
+# -----------------------
+# Sidebar / Inputs
+# -----------------------
+with st.sidebar:
+    st.subheader("Model parameters")
+    alpha = st.number_input(
+        "Capital share (α)",
+        min_value=0.01, max_value=0.99, value=0.33, step=0.01, format="%.2f"
     )
-    A = st.number_input("Level of Technology:", min_value=1.0, max_value=100.0, value=10.0, step=0.1)
+    A = st.number_input("TFP level (A)", min_value=0.10, max_value=1000.0, value=1.00, step=0.10, format="%.2f")
+    s = st.number_input("Savings rate (s)", min_value=0.0, max_value=1.0, value=0.20, step=0.01, format="%.2f")
+    delta = st.number_input("Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
+    T = st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1)
 
-with col2:
-    S = st.number_input("Savings Rate:", min_value=0.0, max_value=1.0, value=0.2, step=0.001, format="%.2f")
-    D = st.number_input("Depreciation Rate:", min_value=0.0, max_value=1.0, value=0.05, step=0.001, format="%.2f")
-    T = st.number_input("Periods:", min_value=1, max_value=1000, value=100, step=1)
+# Country selection (top of main)
+countries = solow_df["country"].sort_values().unique()
+selected_country = st.selectbox("Select a country:", countries)
 
-country_data = solow_df[solow_df['country'] == selected_country].iloc[0]
+# Current country row
+row = solow_df.loc[solow_df["country"] == selected_country].iloc[0]
+y_data = float(row["GDP_per_worker"])                   # observed GDP per worker (latest)
+n = float(row["Mean_Labour_Growth"]) if pd.notna(row["Mean_Labour_Growth"]) else 0.01
+N0 = float(row["Labour_Force"])
+country_name = row["country"]
+latest_year = row["date"].year if not pd.isna(row["date"]) else "N/A"
 
-# Extract parameters
-n = country_data['Mean_Labour_Growth'] if not pd.isna(country_data['Mean_Labour_Growth']) else 0.01
-Ki = country_data['GDPi']
-country_name = country_data['country']
+# Guardrails / validation
+if alpha <= 0 or alpha >= 1:
+    st.error("Capital share α must be between 0 and 1.")
+    st.stop()
+if y_data <= 0 or N0 <= 0:
+    st.error("Selected country has invalid latest values (GDP per worker or labour force).")
+    st.stop()
 
-# Show selected country summary
-st.markdown(f"### Data for {country_name}")
-st.write(country_data[['date', 'Labour_Force', 'Real_GDP', 'Mean_Labour_Growth', 'GDPi']])
+# -----------------------
+# Solow helpers
+# -----------------------
+def initial_k_from_output(y_per_worker, A, alpha):
+    """Invert y = A * k^alpha  =>  k0 = (y/A)^(1/alpha)."""
+    return (y_per_worker / A) ** (1.0 / alpha)
 
-# Calculate Ki rounded with user IC
-Ki = round((Ki ** (1 / IC))/A, 4)
-
-def solow_model(A, n, D, Ki, S, IC, T):
-    k = np.zeros(T)
-    k[0] = Ki
+def solow_k_path(k0, A, alpha, s, delta, n, T):
+    """k_{t+1} = [ s*A*k_t^α + (1-δ)k_t ] / (1+n)"""
+    k = np.empty(T, dtype=float)
+    k[0] = k0
     for t in range(1, T):
-        k[t] = (S / (1 + n)) * (A*k[t-1] ** IC) + k[t-1] * (1 - D) / (1 + n)
+        k[t] = (s * A * (k[t-1] ** alpha) + (1.0 - delta) * k[t-1]) / (1.0 + n)
     return k
 
-# Run model
-k_path = solow_model(A, n, D, Ki, S, IC, T)
+def lf_path(N0, n, T):
+    """Labour force path with constant growth n."""
+    return N0 * (1.0 + n) ** np.arange(T)
 
-def ysolow_model(k_path, A, IC):
-    y = np.zeros(T)
-    y[0] = A*Ki**IC
-    for t in range(1, T):
-        y[t] = A * k_path[t-1]**IC
-    return y
-    
-y_path = ysolow_model(k_path, A, IC)
+# -----------------------
+# Build paths
+# -----------------------
+k0 = initial_k_from_output(y_data, A, alpha)
+k_path = solow_k_path(k0, A, alpha, s, delta, n, T)
 
-def isolow_model(k_path, S, A, IC):
-    I = np.zeros(T)
-    I[0] = S*A*Ki**IC
-    for t in range(1, T):
-        I[t] = S*A*k_path[t-1]**IC
-    return I
+# Vectorized macro identities
+y_path = A * (k_path ** alpha)          # output per (effective) worker
+i_path = s * y_path                     # investment per worker
+c_path = (1.0 - s) * y_path             # consumption per worker
+w_path = (1.0 - alpha) * y_path         # wage (under Cobb-Douglas, competitive factor shares)
 
-i_path = isolow_model(k_path, S, A, IC)
+N_path = lf_path(N0, n, T)              # labour force
+GDP_path = y_path * N_path              # total output
 
-def csolow_model(k_path, S, A, IC):
-    C = np.zeros(T)
-    C[0] = (1-S)*A*Ki**IC
-    for t in range(1, T):
-        C[t] = (1-S)*A*k_path[t-1]**IC
-    return C
-
-c_path = csolow_model(k_path, S, A, IC)
-
-def wsolow_model(k_path, A, IC):
-    W = np.zeros(T)
-    W[0] = (1-IC)*A*Ki**IC
-    for t in range(1, T):
-        W[t] = (1-IC)*A*k_path[t-1]**IC
-    return W
-
-w_path = wsolow_model(k_path, A, IC)
-
-N0 = country_data['Labour_Force']
-
-def lf_growth(N0, n):
-    N_arr = np.zeros(T)
-    N_arr[0] = N0
-    for t in range(1, T):
-        N_arr[t] = N_arr[t-1] * (1 + n)
-    return N_arr
-
-N_path = lf_growth(N0, n)
-
-def gdpsolow_model(N_path, y_path):
-    GDP = np.zeros(T)
-    GDP[0] = A*(Ki**IC)*N0
-    for t in range(1, T):
-        GDP[t] = y_path[t-1] * N_path[t-1]
-    return GDP
-
-GDP_path = gdpsolow_model(N_path, y_path)
-
-# Plot
-time = list(range(T))
-
-fig = go.Figure()
-fig.add_trace(go.Scatter(
-    x=time,
-    y=k_path,
-    mode='lines',
-    name='Capital per effective worker',
-    line=dict(color='blue')
-))
-fig.update_layout(
-    title=f"Solow Capital Growth Model - {country_name}",
-    xaxis_title='Periods',
-    yaxis_title='Capital per effective worker (k)',
-    template='plotly_white'
+# -----------------------
+# Headline & country panel
+# -----------------------
+st.markdown(f"**Latest data for {country_name} (year: {latest_year})**")
+st.dataframe(
+    pd.DataFrame({
+        "Latest year": [latest_year],
+        "Labour force": [N0],
+        "Real GDP": [row["Real_GDP"]],
+        "GDP per worker": [y_data],
+        "Mean labour-force growth (n)": [n]
+    }).T.rename(columns={0: "value"})
 )
 
-fig1 = go.Figure()
-fig1.add_trace(go.Scatter(
-    x=time,
-    y=y_path,
-    mode='lines',
-    name='Output per effective worker',
-    line=dict(color='blue')
-))
-fig1.update_layout(
-    title=f"Solow Output Growth Model - {country_name}",
-    xaxis_title='Periods',
-    yaxis_title='Output per effective worker (Y)',
-    template='plotly_white'
+# -----------------------
+# Plots (2 x 3 grid)
+# -----------------------
+time = np.arange(T)
+
+def make_line(y, title, ylab):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=time, y=y, mode="lines", name=title))
+    fig.update_layout(title=title, xaxis_title="Periods", yaxis_title=ylab, template="plotly_white")
+    return fig
+
+col_left, col_right = st.columns(2)
+
+with col_left:
+    st.plotly_chart(make_line(k_path, f"Capital per worker (k) — {country_name}", "k"), use_container_width=True)
+    st.plotly_chart(make_line(y_path, f"Output per worker (y) — {country_name}", "y"), use_container_width=True)
+    st.plotly_chart(make_line(GDP_path, f"Total GDP — {country_name}", "GDP"), use_container_width=True)
+
+with col_right:
+    st.plotly_chart(make_line(i_path, f"Investment per worker (i) — {country_name}", "i"), use_container_width=True)
+    st.plotly_chart(make_line(c_path, f"Consumption per worker (c) — {country_name}", "c"), use_container_width=True)
+    st.plotly_chart(make_line(w_path, f"Wage per worker (w) — {country_name}", "w"), use_container_width=True)
+
+# -----------------------
+# Download results
+# ----------------
+
+paths_df = pd.DataFrame({
+    "t": time,
+    "k": k_path,
+    "y": y_path,
+    "i": i_path,
+    "c": c_path,
+    "w": w_path,
+    "N": N_path,
+    "GDP": GDP_path
+})
+st.download_button(
+    "Download simulated paths (CSV)",
+    data=paths_df.to_csv(index=False).encode("utf-8"),
+    file_name=f"solow_paths_{country_name}.csv",
+    mime="text/csv"
 )
-
-fig2 = go.Figure()
-fig2.add_trace(go.Scatter(
-    x=time,
-    y=i_path,
-    mode='lines',
-    name='Investment per effective worker',
-    line=dict(color='blue')
-))
-fig2.update_layout(
-    title=f"Solow Investment Growth Model - {country_name}",
-    xaxis_title='Periods',
-    yaxis_title='Investment per effective worker (I)',
-    template='plotly_white'
-)
-
-fig3 = go.Figure()
-fig3.add_trace(go.Scatter(
-    x=time,
-    y=c_path,
-    mode='lines',
-    name='Consumption per effective worker',
-    line=dict(color='blue')
-))
-fig3.update_layout(
-    title=f"Solow Consumption Growth Model - {country_name}",
-    xaxis_title='Periods',
-    yaxis_title='Consumption per effective worker (C)',
-    template='plotly_white'
-)
-
-fig4 = go.Figure()
-fig4.add_trace(go.Scatter(
-    x=time,
-    y=w_path,
-    mode='lines',
-    name='Wage per effective worker',
-    line=dict(color='blue')
-))
-fig4.update_layout(
-    title=f"Solow Wage Growth Model - {country_name}",
-    xaxis_title='Periods',
-    yaxis_title='Wage per effective worker (W)',
-    template='plotly_white'
-)
-
-fig5 = go.Figure()
-fig5.add_trace(go.Scatter(
-    x=time,
-    y=GDP_path,
-    mode='lines',
-    name='GDP',
-    line=dict(color='blue')
-))
-fig5.update_layout(
-    title=f"Solow Growth Model - {country_name}",
-    xaxis_title='Periods',
-    yaxis_title='GDP',
-    template='plotly_white'
-)
-
-col3, col4 = st.columns(2)
-
-with col3:
-    st.plotly_chart(fig, use_container_width=True)
-    st.plotly_chart(fig1, use_container_width=True)
-    st.plotly_chart(fig5, use_container_width=True)
-
-with col4:
-    st.plotly_chart(fig2, use_container_width=True)
-    st.plotly_chart(fig3, use_container_width=True)
-    st.plotly_chart(fig4, use_container_width=True)
