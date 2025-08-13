@@ -157,7 +157,7 @@ N_path = lf_growth(N0, n)
 
 def gdpsolow_model(N_path, y_path):
     GDP = np.zeros(T)
-    GDP[0] = A*(Ki**IC)*N
+    GDP[0] = A*(Ki**IC)*N0
     for t in range(1, T):
         GDP[t] = y_path[t-1] * N_path[t-1]
     return GDP
