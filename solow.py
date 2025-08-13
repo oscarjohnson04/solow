@@ -102,14 +102,14 @@ def solow_model(A, n, D, Ki, S, LIS, T):
 # Run model
 k_path = solow_model(A, n, D, Ki, S, LIS, T)
 
-def ysolow_model(k, A, LIS):
+def ysolow_model(k_path, A, LIS):
     y = np.zeros(T)
     y[0] = country_data['GDPi']
     for t in range(1, T):
-        y[t] = A * k[t-1]**LIS
+        y[t] = A * k_path[t-1]**LIS
     return y
     
-y_path = ysolow_model(k, A, LIS)
+y_path = ysolow_model(k_path, A, LIS)
 
 # Plot
 time = list(range(T))
