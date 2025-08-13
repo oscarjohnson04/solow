@@ -144,6 +144,26 @@ def wsolow_model(k_path, A, IC):
 
 w_path = wsolow_model(k_path, A, IC)
 
+N = country_data['Labour_Force']
+
+def lf_growth(N, n):
+    N = np.zeros(T)
+    N[0] = N
+    for t in range(1, T):
+        N[t] = N[t-1] * (1+n)
+    return N
+
+N_path = lf_growth(N, n)
+
+def gdpsolow_model(N_path, y_path):
+    GDP = np.zeros(T)
+    GDP[0] = A*(Ki**IC)*N
+    for t in range(1, T):
+        GDP[t] = y_path[t-1] * N_path[t-1]
+    return GDP
+
+GDP_path = gdpsolow_model(N, y_path)
+
 # Plot
 time = list(range(T))
 
@@ -222,13 +242,29 @@ fig4.update_layout(
     template='plotly_white'
 )
 
+fig5 = go.Figure()
+fig5.add_trace(go.Scatter(
+    x=time,
+    y=GDP_path,
+    mode='lines',
+    name='GDP',
+    line=dict(color='blue')
+))
+fig5.update_layout(
+    title=f"Solow Growth Model - {country_name}",
+    xaxis_title='Periods',
+    yaxis_title='GDP',
+    template='plotly_white'
+)
+
 col3, col4 = st.columns(2)
 
 with col3:
     st.plotly_chart(fig, use_container_width=True)
     st.plotly_chart(fig1, use_container_width=True)
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig5, use_container_width=True)
 
 with col4:
+    st.plotly_chart(fig2, use_container_width=True)
     st.plotly_chart(fig3, use_container_width=True)
     st.plotly_chart(fig4, use_container_width=True)
