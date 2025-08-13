@@ -144,14 +144,16 @@ def wsolow_model(k_path, A, IC):
 
 w_path = wsolow_model(k_path, A, IC)
 
-def lf_growth(N, n):
-    N = np.zeros(T)
-    N[0] = country_data['Labour_Force']
-    for t in range(1, T):
-        N[t] = N[t-1] * (1+n)
-    return N
+N0 = country_data['Labour_Force']
 
-N_path = lf_growth(N, n)
+def lf_growth(N0, n):
+    N_arr = np.zeros(T)
+    N_arr[0] = N0
+    for t in range(1, T):
+        N_arr[t] = N_arr[t-1] * (1 + n)
+    return N_arr
+
+N_path = lf_growth(N0, n)
 
 def gdpsolow_model(N_path, y_path):
     GDP = np.zeros(T)
