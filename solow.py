@@ -102,6 +102,15 @@ def solow_model(A, n, D, Ki, S, LIS, T):
 # Run model
 k_path = solow_model(A, n, D, Ki, S, LIS, T)
 
+def ysolow_model(k, A, LIS):
+    y = np.zeros(T)
+    y[0] = country_data['GDPi']
+    for t in range(1, T):
+        y[t] = A * k[t-1]**LIS
+    return y
+    
+y_path = ysolow_model(k, A, LIS)
+
 # Plot
 time = list(range(T))
 
@@ -121,3 +130,20 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig, use_container_width=True)
+
+fig1 = go.Figure()
+fig1.add_trace(go.Scatter(
+    x=time,
+    y=y_path,
+    mode='lines',
+    name='Output per effective worker',
+    line=dict(color='blue')
+))
+fig1.update_layout(
+    title=f"Solow Output Growth Model - {country_name}",
+    xaxis_title='Periods',
+    yaxis_title='Output per effective worker (k)',
+    template='plotly_white'
+)
+
+st.plotly_chart(fig1, use_container_width=True)
