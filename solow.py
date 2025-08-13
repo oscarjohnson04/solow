@@ -24,39 +24,48 @@ INDICATORS = {
 # -----------------------
 @st.cache_data(show_spinner=True)
 def load_and_process_data(start_date, end_date, indicators):
-    """
-    Download World Bank data, keep real countries only, compute growth & GDP per worker,
-    and return the most recent observation per country.
-    """
-    # Fetch all entities
-    raw = wbdata.get_dataframe(indicators, date=(start_date, end_date)).reset_index()
+    # Fetch data from World Bank API
+    data = wbdata.get_dataframe(indicators, date=(start_date, end_date))
+    data = data.reset_index()
 
-    # Keep only real countries (exclude aggregates)
-    countries_meta = wbdata.get_country()  # list of dicts
-    real_country_names = {c["name"] for c in countries_meta if c.get("region", {}).get("id") != "NA"}
-    data = raw[raw["country"].isin(real_country_names)].copy()
+    # List of regions/aggregates to exclude
+    exclude_list = [
+        "Africa Eastern and Southern", "Africa Western and Central", "Arab World",
+        "Caribbean small states", "Central Europe and the Baltics", "Early-demographic dividend",
+        "East Asia & Pacific", "East Asia & Pacific (IDA & IBRD countries)", "East Asia & Pacific (excluding high income)",
+        "Euro area", "Europe & Central Asia", "Europe & Central Asia (IDA & IBRD countries)", "Europe & Central Asia (excluding high income)",
+        "Fragile and conflict affected situations", "Heavily indebted poor countries (HIPC)", "High income",
+        "IBRD only", "IDA & IBRD total", "IDA blend", "IDA only", "IDA total",
+        "Late-demographic dividend", "Latin America & Caribbean", "Latin America & Caribbean (excluding high income)",
+        "Latin America & the Caribbean (IDA & IBRD countries)", "Least developed countries: UN classification",
+        "Low & middle income", "Low income", "Lower middle income", "Middle East, North Africa, Afghanistan & Pakistan",
+        "Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)", "Middle East, North Africa, Afghanistan & Pakistan (excluding high income)",
+        "Middle income", "North America", "Not classified", "OECD members", "Other small states", "Pacific island small states",
+        "Post-demographic dividend", "Pre-demographic dividend", "Small states", "South Asia", "South Asia (IDA & IBRD)",
+        "Sub-Saharan Africa", "Sub-Saharan Africa (IDA & IBRD countries)", "Sub-Saharan Africa (excluding high income)",
+        "Upper middle income"
+    ]
 
-    # Ensure proper dtypes
-    data["date"] = pd.to_datetime(data["date"], format="%Y", errors="coerce")
-    data = data.sort_values(["country", "date"])
+    # Filter out non-country aggregates
+    data = data[~data['country'].isin(exclude_list)]
 
-    # Drop rows missing core inputs before calculations
-    data = data.dropna(subset=["Labour_Force", "Real_GDP"])
+    # Convert 'date' column to datetime
+    data['date'] = pd.to_datetime(data['date'], format='%Y')
 
-    # Labour force growth (per year, as a rate)
-    data["Labour_Force_Growth"] = (
-        data.groupby("country")["Labour_Force"].pct_change()
-    )
+    # Sort by country and date
+    data = data.sort_values(by=['country', 'date'])
 
-    # Mean labour force growth per country (repeat per row)
-    data["Mean_Labour_Growth"] = data.groupby("country")["Labour_Force_Growth"].transform("mean")
+    # Calculate labour force growth rate (percent change)
+    data['Labour_Force_Growth'] = data.groupby('country')['Labour_Force'].pct_change()
 
-    # GDP per worker (do NOT round yet to keep precision for model inversion)
-    data["GDP_per_worker"] = data["Real_GDP"] / data["Labour_Force"]
+    # Calculate mean labour force growth for each country (same for all rows of that country)
+    data['Mean_Labour_Growth'] = data.groupby('country')['Labour_Force_Growth'].transform('mean')
 
-    # Keep the most recent row per country with valid GDP_per_worker
-    latest_idx = data.dropna(subset=["GDP_per_worker"]).groupby("country")["date"].idxmax()
-    latest = data.loc[latest_idx].reset_index(drop=True)
+    # GDP per worker (rounded to 2 decimals)
+    data['GDPi'] = (data['Real_GDP'] / data['Labour_Force']).round(2)
+
+    # For each country, keep only the most recent data point
+    latest = data.loc[data.groupby('country')['date'].idxmax()].reset_index(drop=True)
 
     return latest
 
