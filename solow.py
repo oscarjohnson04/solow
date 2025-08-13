@@ -144,11 +144,9 @@ def wsolow_model(k_path, A, IC):
 
 w_path = wsolow_model(k_path, A, IC)
 
-N = country_data['Labour_Force']
-
 def lf_growth(N, n):
     N = np.zeros(T)
-    N[0] = N
+    N[0] = country_data['Labour_Force']
     for t in range(1, T):
         N[t] = N[t-1] * (1+n)
     return N
@@ -162,7 +160,7 @@ def gdpsolow_model(N_path, y_path):
         GDP[t] = y_path[t-1] * N_path[t-1]
     return GDP
 
-GDP_path = gdpsolow_model(N, y_path)
+GDP_path = gdpsolow_model(N_path, y_path)
 
 # Plot
 time = list(range(T))
