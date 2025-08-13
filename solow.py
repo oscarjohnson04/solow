@@ -129,6 +129,15 @@ def csolow_model(k_path, S, A, IC):
 
 c_path = csolow_model(k_path, S, A, IC)
 
+def wsolow_model(k_path, A, IC):
+    W = np.zeros(T)
+    W[0] = (1-IC)*A*Ki**IC
+    for t in range(1, T):
+        W[t] = (1-IC)*A*k_path[t-1]**IC
+    return W
+
+w_path = csolow_model(k_path, A, IC)
+
 # Plot
 time = list(range(T))
 
@@ -188,7 +197,7 @@ fig3.add_trace(go.Scatter(
     x=time,
     y=c_path,
     mode='lines',
-    name='Investment per effective worker',
+    name='Consumption per effective worker',
     line=dict(color='blue')
 ))
 fig3.update_layout(
@@ -199,4 +208,21 @@ fig3.update_layout(
 )
 
 st.plotly_chart(fig3, use_container_width=True)
+
+fig4 = go.Figure()
+fig4.add_trace(go.Scatter(
+    x=time,
+    y=w_path,
+    mode='lines',
+    name='Wage per effective worker',
+    line=dict(color='blue')
+))
+fig4.update_layout(
+    title=f"Solow Wage Growth Model - {country_name}",
+    xaxis_title='Periods',
+    yaxis_title='Wage per effective worker (W)',
+    template='plotly_white'
+)
+
+st.plotly_chart(fig4, use_container_width=True)
 
