@@ -6,6 +6,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 st.title("Solow Growth Model Explorer")
+st.set_page_config(layout="wide")
 
 # Data loading parameters
 start_date = dt.datetime(1970, 1, 1)
