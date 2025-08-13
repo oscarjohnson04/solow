@@ -120,6 +120,15 @@ def isolow_model(k_path, S, A, IC):
 
 i_path = isolow_model(k_path, S, A, IC)
 
+def csolow_model(k_path, S, A, IC):
+    C = np.zeros(T)
+    C[0] = (1-S)*A*Ki**IC
+    for t in range(1, T):
+        C[t] = (1-S)*A*k_path[t-1]**IC
+    return C
+
+c_path = csolow_model(k_path, S, A, IC)
+
 # Plot
 time = list(range(T))
 
@@ -173,3 +182,21 @@ fig2.update_layout(
 )
 
 st.plotly_chart(fig2, use_container_width=True)
+
+fig3 = go.Figure()
+fig3.add_trace(go.Scatter(
+    x=time,
+    y=c_path,
+    mode='lines',
+    name='Investment per effective worker',
+    line=dict(color='blue')
+))
+fig3.update_layout(
+    title=f"Solow Consumption Growth Model - {country_name}",
+    xaxis_title='Periods',
+    yaxis_title='Consumption per effective worker (C)',
+    template='plotly_white'
+)
+
+st.plotly_chart(fig3, use_container_width=True)
+
