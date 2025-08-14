@@ -108,9 +108,9 @@ if y_data <= 0 or N0 <= 0:
 # -----------------------
 # Solow helpers
 # -----------------------
-def initial_k_from_output(y_per_worker, A, alpha):
+def initial_k_from_output(y_data, A, alpha):
     """Invert y = A * k^alpha  =>  k0 = (y/A)^(1/alpha)."""
-    return (y_per_worker / A) ** (1.0 / alpha)
+    return (y_data / A) ** (1.0 / alpha)
 
 def solow_k_path(k0, A, alpha, s, delta, n, T):
     """k_{t+1} = [ s*A*k_t^α + (1-δ)k_t ] / (1+n)"""
