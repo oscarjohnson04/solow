@@ -15,7 +15,7 @@ st.title("Solow Growth Model Explorer")
 START_DATE = dt.datetime(1970, 1, 1)
 END_DATE = dt.datetime(2024, 1, 1)
 INDICATORS = {
-    "SP.POP.TOTL": "Labour_Force",   # Labour force (total)
+    "SP.POP.TOTL": "Population",   # Labour force (total)
     "NY.GDP.MKTP.KD": "Real_GDP"        # GDP (constant 2015 US$)
 }
 
@@ -56,13 +56,13 @@ def load_and_process_data(start_date, end_date, indicators):
     data = data.sort_values(by=['country', 'date'])
 
     # Calculate labour force growth rate (percent change)
-    data['Labour_Force_Growth'] = data.groupby('country')['Labour_Force'].pct_change()
+    data['Population_Growth'] = data.groupby('country')['Population'].pct_change()
 
     # Calculate mean labour force growth for each country (same for all rows of that country)
-    data['Mean_Labour_Growth'] = data.groupby('country')['Labour_Force_Growth'].transform('mean')
+    data['Mean_Population_Growth'] = data.groupby('country')['Population_Growth'].transform('mean')
 
     # GDP per worker (rounded to 2 decimals)
-    data['GDPi'] = (data['Real_GDP'] / data['Labour_Force']).round(2)
+    data['GDPi'] = (data['Real_GDP'] / data['Population']).round(2)
 
     # For each country, keep only the most recent data point
     latest = data.loc[data.groupby('country')['date'].idxmax()].reset_index(drop=True)
@@ -92,8 +92,8 @@ selected_country = st.selectbox("Select a country:", countries)
 # Current country row
 row = solow_df.loc[solow_df["country"] == selected_country].iloc[0]
 y_data = float(row["GDPi"])                   # observed GDP per worker (latest)
-n = float(row["Mean_Labour_Growth"]) if pd.notna(row["Mean_Labour_Growth"]) else 0.01
-N0 = float(row["Labour_Force"])
+n = float(row["Mean_Population_Growth"]) if pd.notna(row["Mean_Population_Growth"]) else 0.01
+N0 = float(row["Population"])
 country_name = row["country"]
 latest_year = row["date"].year if not pd.isna(row["date"]) else "N/A"
 
@@ -167,14 +167,14 @@ def make_line(y, title, ylab):
 col_left, col_right = st.columns(2)
 
 with col_left:
-    st.plotly_chart(make_line(k_path, f"Capital per worker (k) — {country_name}", "k"), use_container_width=True)
-    st.plotly_chart(make_line(y_path, f"Output per worker (y) — {country_name}", "y"), use_container_width=True)
+    st.plotly_chart(make_line(k_path, f"Capital per capita (k) — {country_name}", "k"), use_container_width=True)
+    st.plotly_chart(make_line(y_path, f"Output per capita (y) — {country_name}", "y"), use_container_width=True)
     st.plotly_chart(make_line(GDP_path, f"Total GDP — {country_name}", "GDP"), use_container_width=True)
 
 with col_right:
-    st.plotly_chart(make_line(i_path, f"Investment per worker (i) — {country_name}", "i"), use_container_width=True)
-    st.plotly_chart(make_line(c_path, f"Consumption per worker (c) — {country_name}", "c"), use_container_width=True)
-    st.plotly_chart(make_line(w_path, f"Wage per worker (w) — {country_name}", "w"), use_container_width=True)
+    st.plotly_chart(make_line(i_path, f"Investment per capita (i) — {country_name}", "i"), use_container_width=True)
+    st.plotly_chart(make_line(c_path, f"Consumption per capita (c) — {country_name}", "c"), use_container_width=True)
+    st.plotly_chart(make_line(w_path, f"Wage per capita (w) — {country_name}", "w"), use_container_width=True)
 
 # -----------------------
 # Download results
