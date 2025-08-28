@@ -146,10 +146,10 @@ st.markdown(f"**Latest data for {country_name} (year: {latest_year})**")
 st.dataframe(
     pd.DataFrame({
         "Latest year": [latest_year],
-        "Labour force": [N0],
+        "Population": [N0],
         "Real GDP": [row["Real_GDP"]],
-        "GDP per worker": [y_data],
-        "Mean labour-force growth (n)": [n]
+        "GDP per capita": [y_data],
+        "Mean population growth (n)": [n]
     }).T.rename(columns={0: "value"})
 )
 
