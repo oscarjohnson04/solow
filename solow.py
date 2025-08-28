@@ -15,7 +15,7 @@ st.title("Solow Growth Model Explorer")
 START_DATE = dt.datetime(1970, 1, 1)
 END_DATE = dt.datetime(2024, 1, 1)
 INDICATORS = {
-    "SP.POP.TOTL": "Labour_Force",   # Labour force (total)
+    "SL.TLF.TOTL.IN": "Labour_Force",   # Labour force (total)
     "NY.GDP.MKTP.KD": "Real_GDP"        # GDP (constant 2015 US$)
 }
 
