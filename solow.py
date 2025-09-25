@@ -184,7 +184,7 @@ def format_value(val, variable_name):
 
 summary_df["Value"] = [format_value(v, vn) for v, vn in zip(summary_df["Value"], summary_df["Variable"])]
 
-st.dataframe(summary_df, width=400)
+st.dataframe(summary_df.reset_index(drop=True))
 
 time = np.arange(T)
 
