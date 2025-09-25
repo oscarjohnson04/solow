@@ -157,15 +157,34 @@ GDP_path = y_path * N_path              # total output
 # Headline & country panel
 # -----------------------
 st.markdown(f"**Latest data for {country_name} (year: {latest_year})**")
-st.dataframe(
-    pd.DataFrame({
-        "Latest year": [latest_year],
-        "Population": [N0],
-        "Real GDP": [row["Real_GDP"]],
-        "GDP per capita": [y_data],
-        "Mean population growth (n)": [n]
-    }).T.rename(columns={0: "value"})
-)
+summary_df = pd.DataFrame({
+    "Variable": [
+        "Latest year",
+        "Population",
+        "Real GDP",
+        "GDP per capita",
+        "Mean population growth (n)"
+    ],
+    "Value": [
+        latest_year,
+        N0,
+        row["Real_GDP"],
+        y_data,
+        n
+    ]
+})
+
+def format_value(val, variable_name):
+    if variable_name == "Mean population growth (n)":
+        return f"{val*100:.2f}%"  # percentage
+    elif isinstance(val, (int, float)):
+        return f"{val:,.2f}"      # commas + 2 decimals
+    else:
+        return val                 # leave as is
+
+summary_df["Value"] = [format_value(v, vn) for v, vn in zip(summary_df["Value"], summary_df["Variable"])]
+
+st.dataframe(summary_df, width=400)
 
 time = np.arange(T)
 
