@@ -114,13 +114,16 @@ def initial_k_from_output(y_data, A0, alpha):
     """Invert y = A * k^alpha  =>  k0 = (y/A)^(1/alpha)."""
     return (y_data / A0) ** (1.0 / alpha)
 
-def romer_A_path(A0, N_path, lambda_RD, phi):
-    A = np.empty(T, dtype=float)
+def romer_A_path(A0, N_path, lambda_RD, phi, dt=0.01):
+    T = len(N_path)
+    steps = int(T / dt)
+    A = np.zeros(steps)
     A[0] = A0
-    for t in range(1, T):
-        L_A = lambda_RD * N_path[t-1]   # workers in R&D
-        A[t] = A[t-1] + phi * L_A * A[t-1]
-    return A
+    for t in range(steps - 1):
+        L_A = lambda_RD * N_path[t-1]   
+        da = lambda_RD * (L_A ** phi) * A[t] # workers in R&D
+        A[t+1] = A[t] + dA * dt
+    return A[::int(1/dt)]
 
 def solow_k_path(k0, A, alpha, s, delta, n, T):
     """k_{t+1} = [ s*A*k_t^α + (1-δ)k_t ] / (1+n)"""
