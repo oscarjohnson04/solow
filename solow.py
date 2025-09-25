@@ -113,7 +113,7 @@ if y_data <= 0 or N0 <= 0:
 # -----------------------
 def initial_k_from_output(y_data, A0, alpha):
     """Invert y = A * k^alpha  =>  k0 = (y/A)^(1/alpha)."""
-    return (y_data / A0) ** (1.0 / alpha)
+    return np.exp((np.log(y_data) - np.log(A0)) / alpha)
 
 def romer_A_path(A0, N_path, lambda_RD, phi, theta):
     T = len(N_path)
