@@ -137,17 +137,16 @@ def lf_path(N0, n, T):
 # -----------------------
 # Build paths
 # -----------------------
-k0 = initial_k_from_output(y_data, A_path, alpha)
-k_path = solow_k_path(k0, A_path, alpha, s, delta, n, T)
+N_path = lf_path(N0, n, T)
 A_path = romer_A_path(A0, N_path, lambda_RD, phi)
+k0 = initial_k_from_output(y_data, A0, alpha)
+k_path = solow_k_path(k0, A_path, alpha, s, delta, n, T)
 
 # Vectorized macro identities
 y_path = A_path * (k_path ** alpha)          # output per (effective) worker
 i_path = s * y_path                     # investment per worker
 c_path = (1.0 - s) * y_path             # consumption per worker
 w_path = (1.0 - alpha) * y_path         # wage (under Cobb-Douglas, competitive factor shares)
-
-N_path = lf_path(N0, n, T)              # labour force
 GDP_path = y_path * N_path              # total output
 
 # -----------------------
