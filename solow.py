@@ -115,17 +115,15 @@ def initial_k_from_output(y_data, A0, alpha):
     """Invert y = A * k^alpha  =>  k0 = (y/A)^(1/alpha)."""
     return (y_data / A0) ** (1.0 / alpha)
 
-def romer_A_path(A0, N_path, lambda_RD, phi, theta, dt=0.01):
+def romer_A_path(A0, N_path, lambda_RD, phi, theta):
     T = len(N_path)
-    steps = int(T / dt)
-    A = np.zeros(steps)
+    A = np.zeros(R)
     A[0] = A0
-    for t in range(steps - 1):
-        year_index = min(int(t * dt), T - 1)
-        L_A = theta * N_path[year_index]      
-        dA = lambda_RD * (L_A ** phi) * A[t] # workers in R&D
-        A[t+1] = A[t] + dA * dt
-    return A[::int(1/dt)]
+    for t in range(1, T):
+        L_A = theta * N_path[t-1]      
+        gA = lambda_RD * (L_A ** phi) 
+        A[t] = A[t-1] + np.exp(gA)
+    return A
 
 def solow_k_path(k0, A, alpha, s, delta, n, T):
     """k_{t+1} = [ s*A*k_t^α + (1-δ)k_t ] / (1+n)"""
@@ -143,7 +141,7 @@ def lf_path(N0, n, T):
 # Build paths
 # -----------------------
 N_path = lf_path(N0, n, T)
-A_path = romer_A_path(A0, N_path, lambda_RD, phi, theta, dt=0.01)
+A_path = romer_A_path(A0, N_path, lambda_RD, phi, theta)
 k0 = initial_k_from_output(y_data, A0, alpha)
 k_path = solow_k_path(k0, A_path, alpha, s, delta, n, T)
 
