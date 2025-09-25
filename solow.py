@@ -81,7 +81,7 @@ with st.sidebar:
         min_value=0.01, max_value=0.99, value=0.33, step=0.01, format="%.2f"
     )
     A0 = st.number_input("TFP level (A)", min_value=0.10, max_value=1000.0, value=1.00, step=0.10, format="%.2f")
-    lambda_RD = st.number_input("R&D productivity (λ)", min_value=0.0, max_value=1.0, value=0.05, step=0.0001, format="%.4f")
+    lambda_RD = st.number_input("R&D productivity (λ)", min_value=0.0, max_value=1.0, value=0.05, step=0.10format="%.2f")
     phi = st.number_input("R&D returns to scale (φ)", min_value=0.0, max_value=1.0, value=0.10, step=0.01)
     theta = st.number_input("R&D labor share (θ)", min_value=0.0, max_value=1.0, value=0.1, step=0.01)
     s = st.number_input("Savings rate (s)", min_value=0.0, max_value=1.0, value=0.20, step=0.01, format="%.2f")
