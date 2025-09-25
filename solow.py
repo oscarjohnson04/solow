@@ -178,9 +178,11 @@ def format_value(val, variable_name):
     if variable_name == "Mean population growth (n)":
         return f"{val*100:.2f}%"  # percentage
     elif variable_name == "Real GDP" or variable_name == "GDP per capita":
-        return f"{val:,.2f}"      # commas + 2 decimals
+        return f"${val:,.2f}"      # commas + 2 decimals
+    elif variable_name == "Population" or variable_name == "Latest year":
+        return f"{int(val):,}"               
     else:
-        return val                 # leave as is
+        return val    
 
 summary_df["Value"] = [format_value(v, vn) for v, vn in zip(summary_df["Value"], summary_df["Variable"])]
 
