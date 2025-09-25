@@ -80,7 +80,9 @@ with st.sidebar:
         "Capital share (α)",
         min_value=0.01, max_value=0.99, value=0.33, step=0.01, format="%.2f"
     )
-    A = st.number_input("TFP level (A)", min_value=0.10, max_value=1000.0, value=1.00, step=0.10, format="%.2f")
+    A0 = st.number_input("TFP level (A)", min_value=0.10, max_value=1000.0, value=1.00, step=0.10, format="%.2f")
+    lambda_RD = st.number_input("Labour share in R&D (λ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01)
+    phi = st.number_input("R&D productivity (φ)", min_value=0.0, max_value=1.0, value=0.10, step=0.01)
     s = st.number_input("Savings rate (s)", min_value=0.0, max_value=1.0, value=0.20, step=0.01, format="%.2f")
     delta = st.number_input("Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
     T = st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1)
@@ -108,16 +110,24 @@ if y_data <= 0 or N0 <= 0:
 # -----------------------
 # Solow helpers
 # -----------------------
-def initial_k_from_output(y_data, A, alpha):
+def initial_k_from_output(y_data, A0, alpha):
     """Invert y = A * k^alpha  =>  k0 = (y/A)^(1/alpha)."""
-    return (y_data / A) ** (1.0 / alpha)
+    return (y_data / A0) ** (1.0 / alpha)
+
+def romer_A_path(A0, N_path, lambda_RD, phi):
+    A = np.empty(T, dtype=float)
+    A[0] = A0
+    for t in range(1, T):
+        L_A = lambda_RD * N_path[t-1]   # workers in R&D
+        A[t] = A[t-1] + phi * L_A * A[t-1]
+    return A
 
 def solow_k_path(k0, A, alpha, s, delta, n, T):
     """k_{t+1} = [ s*A*k_t^α + (1-δ)k_t ] / (1+n)"""
     k = np.empty(T, dtype=float)
     k[0] = k0
     for t in range(1, T):
-        k[t] = (s * A * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)
+        k[t] = (s * A[t-1] * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)
     return k
 
 def lf_path(N0, n, T):
@@ -127,11 +137,12 @@ def lf_path(N0, n, T):
 # -----------------------
 # Build paths
 # -----------------------
-k0 = initial_k_from_output(y_data, A, alpha)
-k_path = solow_k_path(k0, A, alpha, s, delta, n, T)
+k0 = initial_k_from_output(y_data, A_path, alpha)
+k_path = solow_k_path(k0, A_path, alpha, s, delta, n, T)
+A_path = romer_A_path(A0, N_path, lambda_RD, phi)
 
 # Vectorized macro identities
-y_path = A * (k_path ** alpha)          # output per (effective) worker
+y_path = A_path * (k_path ** alpha)          # output per (effective) worker
 i_path = s * y_path                     # investment per worker
 c_path = (1.0 - s) * y_path             # consumption per worker
 w_path = (1.0 - alpha) * y_path         # wage (under Cobb-Douglas, competitive factor shares)
@@ -170,6 +181,7 @@ with col_left:
     st.plotly_chart(make_line(k_path, f"Capital per capita (k) — {country_name}", "k"), use_container_width=True)
     st.plotly_chart(make_line(y_path, f"Output per capita (y) — {country_name}", "y"), use_container_width=True)
     st.plotly_chart(make_line(GDP_path, f"Total GDP — {country_name}", "GDP"), use_container_width=True)
+    st.plotly_chart(make_line(
 
 with col_right:
     st.plotly_chart(make_line(i_path, f"Investment per capita (i) — {country_name}", "i"), use_container_width=True)
