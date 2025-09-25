@@ -81,8 +81,9 @@ with st.sidebar:
         min_value=0.01, max_value=0.99, value=0.33, step=0.01, format="%.2f"
     )
     A0 = st.number_input("TFP level (A)", min_value=0.10, max_value=1000.0, value=1.00, step=0.10, format="%.2f")
-    lambda_RD = st.number_input("Labour share in R&D (λ)", min_value=0.0, max_value=1.0, value=0.05, step=0.0001, format="%.4f")
-    phi = st.number_input("R&D productivity (φ)", min_value=0.0, max_value=1.0, value=0.10, step=0.01)
+    lambda_RD = st.number_input("R&D productivity (λ)", min_value=0.0, max_value=1.0, value=0.05, step=0.0001, format="%.4f")
+    phi = st.number_input("R&D returns to scale (φ)", min_value=0.0, max_value=1.0, value=0.10, step=0.01)
+    theta = st.number_input("R&D labor share (θ)", min_value=0.0, max_value=1.0, value=0.1, step=0.01)
     s = st.number_input("Savings rate (s)", min_value=0.0, max_value=1.0, value=0.20, step=0.01, format="%.2f")
     delta = st.number_input("Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
     T = st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1)
@@ -114,13 +115,14 @@ def initial_k_from_output(y_data, A0, alpha):
     """Invert y = A * k^alpha  =>  k0 = (y/A)^(1/alpha)."""
     return (y_data / A0) ** (1.0 / alpha)
 
-def romer_A_path(A0, N_path, lambda_RD, phi, dt=0.01):
+def romer_A_path(A0, N_path, lambda_RD, phi, theta, dt=0.01):
     T = len(N_path)
     steps = int(T / dt)
     A = np.zeros(steps)
     A[0] = A0
     for t in range(steps - 1):
-        L_A = lambda_RD * N_path[t-1]   
+        year_index = min(int(t * dt), T - 1)
+        L_A = theta * N_path[year_index]      
         dA = lambda_RD * (L_A ** phi) * A[t] # workers in R&D
         A[t+1] = A[t] + dA * dt
     return A[::int(1/dt)]
@@ -141,7 +143,7 @@ def lf_path(N0, n, T):
 # Build paths
 # -----------------------
 N_path = lf_path(N0, n, T)
-A_path = romer_A_path(A0, N_path, lambda_RD, phi, dt=0.01)
+A_path = romer_A_path(A0, N_path, lambda_RD, phi, theta, dt=0.01)
 k0 = initial_k_from_output(y_data, A0, alpha)
 k_path = solow_k_path(k0, A_path, alpha, s, delta, n, T)
 
