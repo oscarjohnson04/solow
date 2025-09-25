@@ -117,7 +117,7 @@ def initial_k_from_output(y_data, A0, alpha):
 
 def romer_A_path(A0, N_path, lambda_RD, phi, theta):
     T = len(N_path)
-    A = np.zeros(R)
+    A = np.zeros(T)
     A[0] = A0
     for t in range(1, T):
         L_A = theta * N_path[t-1]      
