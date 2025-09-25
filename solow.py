@@ -111,9 +111,9 @@ if y_data <= 0 or N0 <= 0:
 # -----------------------
 # Solow helpers
 # -----------------------
-def initial_k_from_output(y_data, A0, alpha):
+def initial_k_from_output(y_data, A0, alpha, scale):
     """Invert y = A * k^alpha  =>  k0 = (y/A)^(1/alpha)."""
-    return np.exp((np.log(y_data) - np.log(A0)) / alpha)
+    return np.exp((np.log(scale * y_data) - np.log(A0)) / alpha)
 
 def romer_A_path(A0, N_path, lambda_RD, phi, theta):
     T = len(N_path)
@@ -140,9 +140,10 @@ def lf_path(N0, n, T):
 # -----------------------
 # Build paths
 # -----------------------
+scale = 0.3
 N_path = lf_path(N0, n, T)
 A_path = romer_A_path(A0, N_path, lambda_RD, phi, theta)
-k0 = initial_k_from_output(y_data, A0, alpha)
+k0 = initial_k_from_output(y_data, A0, alpha, scale)
 k_path = solow_k_path(k0, A_path, alpha, s, delta, n, T)
 
 # Vectorized macro identities
