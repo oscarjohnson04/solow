@@ -179,8 +179,10 @@ def format_value(val, variable_name):
         return f"{val*100:.2f}%"  # percentage
     elif variable_name == "Real GDP" or variable_name == "GDP per capita":
         return f"${val:,.2f}"      # commas + 2 decimals
-    elif variable_name == "Population" or variable_name == "Latest year":
-        return f"{int(val):,}"               
+    elif variable_name == "Population":
+        return f"{int(val):,}" 
+    elif variable_name == "Latest year":
+        return f"{int(val):}"
     else:
         return val    
 
