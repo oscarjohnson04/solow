@@ -121,7 +121,7 @@ def romer_A_path(A0, N_path, lambda_RD, phi, dt=0.01):
     A[0] = A0
     for t in range(steps - 1):
         L_A = lambda_RD * N_path[t-1]   
-        da = lambda_RD * (L_A ** phi) * A[t] # workers in R&D
+        dA = lambda_RD * (L_A ** phi) * A[t] # workers in R&D
         A[t+1] = A[t] + dA * dt
     return A[::int(1/dt)]
 
