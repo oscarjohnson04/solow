@@ -84,7 +84,7 @@ with st.sidebar:
     lambda_RD = st.number_input("R&D productivity (λ)", min_value=0.0, max_value=1.0, value=0.05, step=0.10, format="%.2f")
     phi = st.number_input("R&D returns to scale (φ)", min_value=0.0, max_value=1.0, value=0.10, step=0.01)
     theta = st.number_input("R&D labor share (θ)", min_value=0.0, max_value=1.0, value=0.1, step=0.01)
-    scale = st.number_input("Fraction of GDP per capita for initial capital", min_value=1.0, max_value=1000.0, value=1, step=0.01)
+    scale = st.number_input("Fraction of GDP per capita for initial capital", min_value=1.0, max_value=1000.0, value=1.0, step=0.01)
     s = st.number_input("Savings rate (s)", min_value=0.0, max_value=1.0, value=0.20, step=0.01, format="%.2f")
     delta = st.number_input("Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
     T = st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1)
