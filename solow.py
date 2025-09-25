@@ -84,6 +84,7 @@ with st.sidebar:
     lambda_RD = st.number_input("R&D productivity (λ)", min_value=0.0, max_value=1.0, value=0.05, step=0.10, format="%.2f")
     phi = st.number_input("R&D returns to scale (φ)", min_value=0.0, max_value=1.0, value=0.10, step=0.01)
     theta = st.number_input("R&D labor share (θ)", min_value=0.0, max_value=1.0, value=0.1, step=0.01)
+    scale = st.number_input("Fraction of GDP per capita for initial capital", min_value=0.0, max_value=1.0, value=0.1, step=0.01)
     s = st.number_input("Savings rate (s)", min_value=0.0, max_value=1.0, value=0.20, step=0.01, format="%.2f")
     delta = st.number_input("Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
     T = st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1)
@@ -140,7 +141,6 @@ def lf_path(N0, n, T):
 # -----------------------
 # Build paths
 # -----------------------
-scale = 0.3
 N_path = lf_path(N0, n, T)
 A_path = romer_A_path(A0, N_path, lambda_RD, phi, theta)
 k0 = initial_k_from_output(y_data, A0, alpha, scale)
@@ -167,9 +167,6 @@ st.dataframe(
     }).T.rename(columns={0: "value"})
 )
 
-# -----------------------
-# Plots (2 x 3 grid)
-# -----------------------
 time = np.arange(T)
 
 def make_line(y, title, ylab):
