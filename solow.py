@@ -141,7 +141,7 @@ def lf_path(N0, n, T):
 # Build paths
 # -----------------------
 N_path = lf_path(N0, n, T)
-A_path = romer_A_path(A0, N_path, lambda_RD, phi)
+A_path = romer_A_path(A0, N_path, lambda_RD, phi, dt=0.01)
 k0 = initial_k_from_output(y_data, A0, alpha)
 k_path = solow_k_path(k0, A_path, alpha, s, delta, n, T)
 
