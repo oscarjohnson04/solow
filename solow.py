@@ -6,8 +6,8 @@ import numpy as np
 import plotly.graph_objects as go
 
 # --- Page config must be first Streamlit call ---
-st.set_page_config(page_title="Solow Growth Model Explorer", layout="wide")
-st.title("Solow Growth Model Explorer")
+st.set_page_config(page_title="Solow-Romer Growth Model Explorer", layout="wide")
+st.title("Solow-Romer Growth Model Explorer")
 
 # -----------------------
 # Parameters & Indicators
