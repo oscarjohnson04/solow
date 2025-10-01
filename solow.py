@@ -131,7 +131,7 @@ def solow_k_path(k0, A, alpha, s, delta, n, T):
     k = np.empty(T, dtype=float)
     k[0] = k0
     for t in range(1, T):
-        k[t] = (s * A[t-1] * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)
+        k[t] = (s * A[t-1] * k[t-1] ** alpha) / (1.0 + n) - ((n + delta) * k[t-1]) / (1.0 + n)
     return k
 
 def lf_path(N0, n, T):
