@@ -237,12 +237,12 @@ with col_right:
 
 paths_df = pd.DataFrame({
     "t": time,
-    "k": k_path,
-    "y": y_path,
-    "i": i_path,
-    "c": c_path,
+    "k": k_idx,
+    "y": y_idx,
+    "i": i_idx,
+    "c": c_idx,
     "N": N_path,
-    "GDP": GDP_path
+    "GDP": GDP_idx
 })
 st.download_button(
     "Download simulated paths (CSV)",
@@ -250,3 +250,10 @@ st.download_button(
     file_name=f"solow_paths_{country_name}.csv",
     mime="text/csv"
 )
+
+with st.expander("ℹ️ Information about the model"):
+    st.write("The model is a Solow growth model that includes endogenous TFP growth based on Paul Romer's research."
+            "Calculations for the model can be found in the GitHub repo."
+            "For population growth, more weight is put on more recent data."
+            "Indices are used as what matters is to see the growth path based on real data. The use of an index also leads to smaller numbers that are easier to interpret/"
+            "The higher A is, the higher the initial TFP is, affecting the growth of TFP. Note: Higher TFP is more inlign with developed countries than developing ones.")
