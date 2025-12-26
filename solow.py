@@ -23,7 +23,6 @@ INDICATORS = {
 # -----------------------
 # Data loading & cleaning
 # -----------------------
-@st.cache_data(show_spinner=True)
 def load_and_process_data(start_date, end_date, indicators):
     # Fetch data from World Bank API
     data = wbdata.get_dataframe(indicators, date=(start_date, end_date))
