@@ -16,7 +16,7 @@ START_DATE = dt.datetime(1970, 1, 1)
 END_DATE = dt.datetime(2024, 1, 1)
 INDICATORS = {
     "SP.POP.TOTL": "Population",   # Labour force (total)
-    "NY.GDP.MKTP.KD": "Real_GDP"        # GDP (constant 2015 US$)
+    "NY.GDP.MKTP.KD": "Real_GDP",        # GDP (constant 2015 US$)
     "NY.GNS.TOTL.ZS": "Savings_Rate"
 }
 
