@@ -81,7 +81,7 @@ with st.sidebar:
     st.subheader("Model parameters")
     alpha = st.number_input(
         "Capital share (α)",
-        min_value=0.01, max_value=0.99 value=0.33, step=0.01, format="%.2f"
+        min_value=0.01, max_value=0.99, value=0.33, step=0.01, format="%.2f"
     )
     A0 = st.number_input("TFP level (A)", min_value=0.10, max_value=1000.0, value=1.00, step=0.10, format="%.2f")
     lambda_RD = st.number_input("R&D effectiveness (λ)", min_value=0.0, max_value=1.0, value=0.2, step=0.10, format="%.2f")
