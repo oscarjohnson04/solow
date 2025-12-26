@@ -84,7 +84,6 @@ with st.sidebar:
     lambda_RD = st.number_input("R&D effectiveness (λ)", min_value=0.0, max_value=1.0, value=0.2, step=0.10, format="%.2f")
     phi = st.number_input("R&D returns to scale (φ)", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
     theta = st.number_input("R&D labor share (θ)", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
-    #scale = st.number_input("Fraction of GDP per capita for initial capital", min_value=0.01, max_value=1.0, value=0.10, step=0.01)
     s = st.number_input("Savings rate (s)", min_value=0.0, max_value=1.0, value=0.20, step=0.01, format="%.2f")
     delta = st.number_input("Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
     T = st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1)
@@ -95,11 +94,12 @@ selected_country = st.selectbox("Select a country:", countries)
 
 # Current country row
 row = solow_df.loc[solow_df["country"] == selected_country].iloc[0]
-y_data = float(row["GDPi"])/float(row["GDPi"])               # observed GDP per worker (latest)
+y_data = float(row["GDPi"])                   # observed GDP per worker (latest)
 n = float(row["Mean_Population_Growth"]) if pd.notna(row["Mean_Population_Growth"]) else 0.01
 N0 = float(row["Population"])
 country_name = row["country"]
 latest_year = row["date"].year if not pd.isna(row["date"]) else "N/A"
+scale = 0.01
 
 # Guardrails / validation
 if alpha <= 0 or alpha >= 1:
@@ -112,9 +112,9 @@ if y_data <= 0 or N0 <= 0:
 # -----------------------
 # Solow helpers
 # -----------------------
-def initial_k_from_output(y_data, A0, alpha):
+def initial_k_from_output(y_data, A0, alpha, scale):
     """Invert y = A * k^alpha  =>  k0 = (y/A)^(1/alpha)."""
-    return np.exp((np.log(y_data) - np.log(A0)) / alpha)
+    return np.exp((np.log(scale * y_data) - np.log(A0)) / alpha)
 
 def romer_A_path(A0, N_path, lambda_RD, phi, theta):
     T = len(N_path)
@@ -143,7 +143,7 @@ def lf_path(N0, n, T):
 # -----------------------
 N_path = lf_path(N0, n, T)
 A_path = romer_A_path(A0, N_path, lambda_RD, phi, theta)
-k0 = initial_k_from_output(y_data, A0, alpha)
+k0 = initial_k_from_output(y_data, A0, alpha, scale)
 k_path = solow_k_path(k0, A_path, alpha, s, delta, n, T)
 
 # Vectorized macro identities
