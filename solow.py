@@ -127,19 +127,14 @@ def initial_k_from_output(y_data, A0, alpha):
     """Invert y = A * k^alpha  =>  k0 = (y/A)^(1/alpha)."""
     return np.exp((np.log(y_data) - np.log(A0)) / alpha)
 
-def romer_A_path(A0, lambda_RD, phi, theta, T):
-    """
-    Romer-style endogenous TFP growth with balanced growth.
-    """
-    A = np.empty(T)
+def romer_A_path(A0, N_path, lambda_RD, phi, theta):
+    T = int(len(N_path))
+    A = np.zeros(T)
     A[0] = A0
-
-    # Constant long-run TFP growth rate
-    gA = lambda_RD * (theta ** phi)
-
     for t in range(1, T):
-        A[t] = A[t-1] * np.exp(gA)
-
+        L_A = theta * N_path[t-1]
+        gA = lambda_RD * (L_A ** phi)
+        A[t] = A[t-1] + np.exp(gA)
     return A
 
 def solow_k_path(k0, A, alpha, s, delta, n, T):
