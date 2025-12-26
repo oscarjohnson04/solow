@@ -188,7 +188,7 @@ summary_df = pd.DataFrame({
 })
 
 def format_value(val, variable_name):
-    if variable_name == "Mean population growth (n)" or "Savings Rate":
+    if variable_name in ["Mean population growth (n)", "Savings Rate"]:
         return f"{val*100:.2f}%"  # percentage
     elif variable_name == "Real GDP" or variable_name == "GDP per capita":
         return f"${val:,.2f}"      # commas + 2 decimals
