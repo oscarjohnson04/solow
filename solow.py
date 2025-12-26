@@ -17,6 +17,7 @@ END_DATE = dt.datetime(2024, 1, 1)
 INDICATORS = {
     "SP.POP.TOTL": "Population",   # Labour force (total)
     "NY.GDP.MKTP.KD": "Real_GDP"        # GDP (constant 2015 US$)
+    "NY.GNS.TOTL.ZS": "Savings_Rate"
 }
 
 # -----------------------
@@ -64,6 +65,8 @@ def load_and_process_data(start_date, end_date, indicators):
     # GDP per worker (rounded to 2 decimals)
     data['GDPi'] = (data['Real_GDP'] / data['Population']).round(2)
 
+    data['S_Rate'] = (data['Savings_Rate'] / 100)
+
     # For each country, keep only the most recent data point
     latest = data.loc[data.groupby('country')['date'].idxmax()].reset_index(drop=True)
 
@@ -78,13 +81,12 @@ with st.sidebar:
     st.subheader("Model parameters")
     alpha = st.number_input(
         "Capital share (α)",
-        min_value=0.01, max_value=0.99, value=0.33, step=0.01, format="%.2f"
+        min_value=0.01, max_value=1.0, value=0.33, step=0.01, format="%.2f"
     )
     A0 = st.number_input("TFP level (A)", min_value=0.10, max_value=1000.0, value=1.00, step=0.10, format="%.2f")
     lambda_RD = st.number_input("R&D effectiveness (λ)", min_value=0.0, max_value=1.0, value=0.2, step=0.10, format="%.2f")
     phi = st.number_input("R&D returns to scale (φ)", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
     theta = st.number_input("R&D labor share (θ)", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
-    s = st.number_input("Savings rate (s)", min_value=0.0, max_value=1.0, value=0.20, step=0.01, format="%.2f")
     delta = st.number_input("Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
     T = st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1)
 
@@ -97,6 +99,7 @@ row = solow_df.loc[solow_df["country"] == selected_country].iloc[0]
 y_data = float(row["GDPi"])                   # observed GDP per worker (latest)
 n = float(row["Mean_Population_Growth"]) if pd.notna(row["Mean_Population_Growth"]) else 0.01
 N0 = float(row["Population"])
+s = float(row["S_Rate"])
 country_name = row["country"]
 latest_year = row["date"].year if not pd.isna(row["date"]) else "N/A"
 
@@ -171,19 +174,21 @@ summary_df = pd.DataFrame({
         "Population",
         "Real GDP",
         "GDP per capita",
-        "Mean population growth (n)"
+        "Mean population growth (n)",
+        "Savings Rate"
     ],
     "Value": [
         latest_year,
         N0,
         row["Real_GDP"],
         y_data,
-        n
+        n,
+        s
     ]
 })
 
 def format_value(val, variable_name):
-    if variable_name == "Mean population growth (n)":
+    if variable_name == "Mean population growth (n)" or ":
         return f"{val*100:.2f}%"  # percentage
     elif variable_name == "Real GDP" or variable_name == "GDP per capita":
         return f"${val:,.2f}"      # commas + 2 decimals
