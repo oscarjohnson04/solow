@@ -150,7 +150,6 @@ k_path = solow_k_path(k0, A_path, alpha, s, delta, n, T)
 y_path = A_path * (k_path ** alpha)          # output per (effective) worker
 i_path = s * y_path                     # investment per worker
 c_path = (1.0 - s) * y_path             # consumption per worker
-w_path = (1.0 - alpha) * y_path         # wage (under Cobb-Douglas, competitive factor shares)
 GDP_path = y_path * N_path              # total output
 
 # -----------------------
@@ -219,7 +218,6 @@ paths_df = pd.DataFrame({
     "y": y_path,
     "i": i_path,
     "c": c_path,
-    "w": w_path,
     "N": N_path,
     "GDP": GDP_path
 })
