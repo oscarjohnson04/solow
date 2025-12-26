@@ -204,13 +204,11 @@ with col_left:
     st.plotly_chart(make_line(k_path, f"Capital per capita (k) — {country_name}", "k"), use_container_width=True)
     st.plotly_chart(make_line(y_path, f"Output per capita (y) — {country_name}", "y"), use_container_width=True)
     st.plotly_chart(make_line(GDP_path, f"Total GDP — {country_name}", "GDP"), use_container_width=True)
-    st.plotly_chart(make_line(A_path, f"R&D Growth — {country_name}", "A"), use_container_width=True)
 
 with col_right:
     st.plotly_chart(make_line(i_path, f"Investment per capita (i) — {country_name}", "i"), use_container_width=True)
     st.plotly_chart(make_line(c_path, f"Consumption per capita (c) — {country_name}", "c"), use_container_width=True)
-    st.plotly_chart(make_line(w_path, f"Wage per capita (w) — {country_name}", "w"), use_container_width=True)
-
+    st.plotly_chart(make_line(A_path, f"R&D Growth — {country_name}", "A"), use_container_width=True)
 # -----------------------
 # Download results
 # ----------------
