@@ -81,7 +81,7 @@ with st.sidebar:
     st.subheader("Model parameters")
     alpha = st.number_input(
         "Capital share (α)",
-        min_value=0.01, max_value=1.0, value=0.33, step=0.01, format="%.2f"
+        min_value=0.01, max_value=0.99 value=0.33, step=0.01, format="%.2f"
     )
     A0 = st.number_input("TFP level (A)", min_value=0.10, max_value=1000.0, value=1.00, step=0.10, format="%.2f")
     lambda_RD = st.number_input("R&D effectiveness (λ)", min_value=0.0, max_value=1.0, value=0.2, step=0.10, format="%.2f")
@@ -99,7 +99,7 @@ row = solow_df.loc[solow_df["country"] == selected_country].iloc[0]
 y_data = float(row["GDPi"])                   # observed GDP per worker (latest)
 n = float(row["Mean_Population_Growth"]) if pd.notna(row["Mean_Population_Growth"]) else 0.01
 N0 = float(row["Population"])
-s = float(row["S_Rate"])
+s = float(row["S_Rate"]) if pd.notna(row["S_Rate"]) else 0.20
 country_name = row["country"]
 latest_year = row["date"].year if not pd.isna(row["date"]) else "N/A"
 
