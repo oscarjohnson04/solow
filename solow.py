@@ -137,7 +137,7 @@ def romer_A_path(A0, N_path, lambda_RD, phi, theta):
     for t in range(1, T):
         L_A = theta * N_norm[t-1]
         gA = lambda_RD * (L_A ** phi)
-        A[t] = A[t-1] + np.exp(gA)
+        A[t] = A[t-1]*(1+gA)
     return A
 
 def solow_k_path(k0, A, alpha, s, delta, n, T):
