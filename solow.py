@@ -152,6 +152,16 @@ i_path = s * y_path                     # investment per worker
 c_path = (1.0 - s) * y_path             # consumption per worker
 GDP_path = y_path * N_path              # total output
 
+def to_index(x, base=0):
+    return 100.0 * x / x[base]
+
+k_idx   = to_index(k_path)
+y_idx   = to_index(y_path)
+i_idx   = to_index(i_path)
+c_idx   = to_index(c_path)
+A_idx   = to_index(A_path)
+GDP_idx = to_index(GDP_path)
+
 # -----------------------
 # Headline & country panel
 # -----------------------
@@ -200,14 +210,14 @@ def make_line(y, title, ylab):
 col_left, col_right = st.columns(2)
 
 with col_left:
-    st.plotly_chart(make_line(k_path, f"Capital per capita (k) — {country_name}", "k"), use_container_width=True)
-    st.plotly_chart(make_line(y_path, f"Output per capita (y) — {country_name}", "y"), use_container_width=True)
-    st.plotly_chart(make_line(GDP_path, f"Total GDP — {country_name}", "GDP"), use_container_width=True)
+    st.plotly_chart(make_line(k_idx, f"Capital per capita (k) — {country_name}", "k"), use_container_width=True)
+    st.plotly_chart(make_line(y_idx, f"Output per capita (y) — {country_name}", "y"), use_container_width=True)
+    st.plotly_chart(make_line(GDP_idx, f"Total GDP — {country_name}", "GDP"), use_container_width=True)
 
 with col_right:
-    st.plotly_chart(make_line(i_path, f"Investment per capita (i) — {country_name}", "i"), use_container_width=True)
-    st.plotly_chart(make_line(c_path, f"Consumption per capita (c) — {country_name}", "c"), use_container_width=True)
-    st.plotly_chart(make_line(A_path, f"R&D Growth — {country_name}", "A"), use_container_width=True)
+    st.plotly_chart(make_line(i_idx, f"Investment per capita (i) — {country_name}", "i"), use_container_width=True)
+    st.plotly_chart(make_line(c_idx, f"Consumption per capita (c) — {country_name}", "c"), use_container_width=True)
+    st.plotly_chart(make_line(A_idx, f"R&D Growth — {country_name}", "A"), use_container_width=True)
 # -----------------------
 # Download results
 # ----------------
