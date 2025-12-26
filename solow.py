@@ -95,7 +95,7 @@ with st.sidebar:
     A0 = st.number_input("TFP level (A)", min_value=0.10, max_value=1000.0, value=1.00, step=0.10, format="%.2f")
     lambda_RD = st.number_input("R&D effectiveness (λ)", min_value=0.0, max_value=1.0, value=0.2, step=0.10, format="%.2f")
     phi = st.number_input("R&D returns to scale (φ)", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
-    theta = st.number_input("R&D labor share (θ)", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
+    theta = st.number_input("R&D labor share (θ)", min_value=0.0, max_value=1.0, value=0.02, step=0.01)
     delta = st.number_input("Capital Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
     T = int(st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1))
 
@@ -137,7 +137,7 @@ def romer_A_path(A0, N_path, lambda_RD, phi, theta):
     for t in range(1, T):
         L_A = theta * N_norm[t-1]
         gA = lambda_RD * (L_A ** phi)
-        A[t] = A[t-1] + np.exp(gA)
+        A[t] = A[t-1] * (1 + gA)
     return A
 
 def solow_k_path(k0, A, alpha, s, delta, n, T):
