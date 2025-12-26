@@ -60,7 +60,16 @@ def load_and_process_data(start_date, end_date, indicators):
     data['Population_Growth'] = data.groupby('country')['Population'].pct_change()
 
     # Calculate mean labour force growth for each country (same for all rows of that country)
-    data['Mean_Population_Growth'] = data.groupby('country')['Population_Growth'].transform('mean')
+    def weighted_pop_growth(group, span=10):
+        return group['Population_Growth'].ewm(span=span, adjust=False).mean().iloc[-1]
+
+    mean_growth = (
+        data.groupby('country')
+        .apply(weighted_pop_growth, span=10)
+        .rename('Mean_Population_Growth')
+    )
+
+    data = data.merge(mean_growth, on='country')
 
     # GDP per worker (rounded to 2 decimals)
     data['GDPi'] = (data['Real_GDP'] / data['Population']).round(2)
