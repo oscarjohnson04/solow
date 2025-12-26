@@ -97,7 +97,7 @@ with st.sidebar:
     phi = st.number_input("R&D returns to scale (φ)", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
     theta = st.number_input("R&D labor share (θ)", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
     delta = st.number_input("Capital Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
-    T = st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1)
+    T = int(st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1))
 
 # Country selection (top of main)
 countries = solow_df["country"].sort_values().unique()
