@@ -65,7 +65,7 @@ def load_and_process_data(start_date, end_date, indicators):
     # GDP per worker (rounded to 2 decimals)
     data['GDPi'] = (data['Real_GDP'] / data['Population']).round(2)
 
-    data['S_Rate'] = (data['Savings_Rate'] / 100)
+    data['S_Rate'] = (data['Savings_Rate'] / 100).round(2)
 
     # For each country, keep only the most recent data point
     latest = data.loc[data.groupby('country')['date'].idxmax()].reset_index(drop=True)
