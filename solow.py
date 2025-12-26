@@ -131,8 +131,11 @@ def romer_A_path(A0, N_path, lambda_RD, phi, theta):
     T = len(N_path)
     A = np.zeros(T)
     A[0] = A0
+
+    N_norm = N_path / N_path[0]
+    
     for t in range(1, T):
-        L_A = theta * N_path[t-1]      
+        L_A = theta * N_norm[t-1]      
         gA = lambda_RD * (L_A ** phi) 
         A[t] = A[t-1] + np.exp(gA)
     return A
