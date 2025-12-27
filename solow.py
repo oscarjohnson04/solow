@@ -88,11 +88,18 @@ solow_df = load_and_process_data(START_DATE, END_DATE, INDICATORS)
 # -----------------------
 with st.sidebar:
     st.subheader("Model parameters")
+    # THE FIX: Anchor the starting capital to a realistic ratio
+    ky_ratio = st.slider("Initial Capital-Output Ratio (k/y)", 1.0, 6.0, 3.0, 
+                         help="World average is ~3.0. This determines how much capital exists relative to GDP.")
+    
+    alpha = st.number_input("Capital share (α)", 0.01, 0.99, 0.33)
+    
+    st.markdown("---")
+    st.write("**Romer R&D Settings**")
     alpha = st.number_input(
         "Capital share (α)",
         min_value=0.01, max_value=0.99, value=0.33, step=0.01, format="%.2f"
     )
-    A0 = st.number_input("TFP level (A)", min_value=0.10, max_value=1000.0, value=1.00, step=0.10, format="%.2f")
     lambda_RD = st.number_input("R&D effectiveness (λ)", min_value=0.0, max_value=1.0, value=0.2, step=0.10, format="%.2f")
     phi = st.number_input("R&D returns to scale (φ)", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
     theta = st.number_input("R&D labor share (θ)", min_value=0.0, max_value=1.0, value=0.02, step=0.01)
@@ -123,17 +130,17 @@ if y_data <= 0 or N0 <= 0:
 # -----------------------
 # Solow helpers
 # -----------------------
-def initial_k_from_output(y_data, A_path, alpha):
-    """Invert y = A * k^alpha  =>  k0 = (y/A)^(1/alpha)."""
-    return np.exp((np.log(y_data) - np.log(A_path[0])) / alpha)
+A0_calibrated = y_data / ((ky_ratio * y_data) ** alpha)
 
-def romer_A_path(A0, lambda_RD, phi, theta, N_path):
+k0 = ky_ratio * y_data
+
+def romer_A_path(A0_calibrated, lambda_RD, phi, theta, N_path):
     """
     Romer-style endogenous TFP growth with balanced growth.
     """
     T = len(N_path)    
     A = np.zeros(T)    
-    A[0] = A0    
+    A[0] = A0_calibrated   
     N_norm = N_path / N_path[0]        
     for t in range(1, T):
         L_A = theta * N_norm[t-1]
