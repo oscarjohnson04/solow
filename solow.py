@@ -123,7 +123,7 @@ if y_data <= 0 or N0 <= 0:
 # -----------------------
 # Solow helpers
 # -----------------------
-def initial_k_from_output(y_data, A0, alpha):
+def initial_k_from_output(y_data, A_path, alpha):
     """Invert y = A * k^alpha  =>  k0 = (y/A)^(1/alpha)."""
     return np.exp((np.log(y_data) - np.log(A_path[0])) / alpha)
 
