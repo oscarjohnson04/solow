@@ -88,7 +88,7 @@ solow_df = load_and_process_data(START_DATE, END_DATE, INDICATORS)
 # -----------------------
 with st.sidebar:
     st.subheader("Model parameters")
-    # THE FIX: Anchor the starting capital to a realistic ratio
+    display_mode = st.radio("Display Units:", ["Index (Base 100)", "Absolute ($ Value)"])    
     ky_ratio = st.slider("Initial Capital-Output Ratio (k/y)", 1.0, 6.0, 3.0, 
                          help="World average is ~3.0. This determines how much capital exists relative to GDP.")
     
@@ -177,12 +177,22 @@ GDP_path = y_path * N_path              # total output
 def to_index(x, base=0):
     return 100.0 * x / x[base]
 
-k_idx   = to_index(k_path)
-y_idx   = to_index(y_path)
-i_idx   = to_index(i_path)
-c_idx   = to_index(c_path)
-A_idx   = to_index(A_path)
-GDP_idx = to_index(GDP_path)
+if display_mode == "Index (Base 100)":
+    k_plot = to_index(k_path)
+    y_plot = to_index(y_path)
+    i_plot = to_index(i_path)
+    c_plot = to_index(c_path)
+    A_plot = to_index(A_path)
+    GDP_plot = to_index(GDP_path)
+    y_label = "Index (Start = 100)"
+else:
+    k_plot = k_path
+    y_plot = y_path
+    i_plot = i_path
+    c_plot = c_path
+    A_plot = A_path
+    GDP_plot = GDP_path
+    y_label = "Value (USD / Units)")
 
 # -----------------------
 # Headline & country panel
@@ -234,14 +244,14 @@ def make_line(y, title, ylab):
 col_left, col_right = st.columns(2)
 
 with col_left:
-    st.plotly_chart(make_line(k_idx, f"Capital per capita (k) (Index = 100) — {country_name}", "k"), use_container_width=True)
-    st.plotly_chart(make_line(y_idx, f"Output per capita (y) (Index = 100) — {country_name}", "y"), use_container_width=True)
-    st.plotly_chart(make_line(GDP_idx, f"Total GDP (Index = 100) — {country_name}", "GDP"), use_container_width=True)
+    st.plotly_chart(make_line(k_plot, f"Capital per capita (k) (Index = 100) — {country_name}", "k"), use_container_width=True)
+    st.plotly_chart(make_line(y_plot, f"Output per capita (y) (Index = 100) — {country_name}", "y"), use_container_width=True)
+    st.plotly_chart(make_line(GDP_plot, f"Total GDP (Index = 100) — {country_name}", "GDP"), use_container_width=True)
 
 with col_right:
-    st.plotly_chart(make_line(i_idx, f"Investment per capita (i) (Index = 100) — {country_name}", "i"), use_container_width=True)
-    st.plotly_chart(make_line(c_idx, f"Consumption per capita (c) (Index = 100) — {country_name}", "c"), use_container_width=True)
-    st.plotly_chart(make_line(A_idx, f"R&D Growth (Index = 100) — {country_name}", "A"), use_container_width=True)
+    st.plotly_chart(make_line(i_plot, f"Investment per capita (i) (Index = 100) — {country_name}", "i"), use_container_width=True)
+    st.plotly_chart(make_line(c_plot, f"Consumption per capita (c) (Index = 100) — {country_name}", "c"), use_container_width=True)
+    st.plotly_chart(make_line(A_plot, f"R&D Growth (Index = 100) — {country_name}", "A"), use_container_width=True)
 # -----------------------
 # Download results
 # ----------------
