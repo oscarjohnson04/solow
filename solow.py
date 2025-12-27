@@ -89,7 +89,7 @@ solow_df = load_and_process_data(START_DATE, END_DATE, INDICATORS)
 with st.sidebar:
     st.subheader("Randomness")
     random_type = st.radio("Location of Shock:", ["TFP", "Capital Accumulation"])
-    random_strength = st.slider("Randomness Strength", 0.0, 5.0, 1.0)
+    random_strength = st.slider("Randomness Strength", 0.0, 1.0, 0.25)
 
     st.markdown("---")
     st.subheader("Model parameters")
