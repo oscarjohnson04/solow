@@ -135,10 +135,8 @@ def romer_A_path(A0, lambda_RD, phi, theta, T):
     A[0] = A0
 
     # Constant long-run TFP growth rate
-    gA = lambda_RD * (theta ** phi)
-
-    for t in range(1, T):
-        A[t] = A[t-1] * np.exp(gA)
+    gA = lambda_RD * (L_A ** phi)
+    A[t] = A[t-1] * np.exp(gA) 
 
     return A
 
