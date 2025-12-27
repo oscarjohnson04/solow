@@ -247,14 +247,14 @@ def make_line(y, title, ylab):
 col_left, col_right = st.columns(2)
 
 with col_left:
-    st.plotly_chart(make_line(k_plot, f"Capital per capita (k) (Index = 100) — {country_name}", "k"), use_container_width=True)
-    st.plotly_chart(make_line(y_plot, f"Output per capita (y) (Index = 100) — {country_name}", "y"), use_container_width=True)
-    st.plotly_chart(make_line(GDP_plot, f"Total GDP (Index = 100) — {country_name}", "GDP"), use_container_width=True)
+    st.plotly_chart(make_line(k_plot, f"Capital per capita (k) — {country_name}", "k"), use_container_width=True)
+    st.plotly_chart(make_line(y_plot, f"Output per capita (y) — {country_name}", "y"), use_container_width=True)
+    st.plotly_chart(make_line(GDP_plot, f"Total GDP — {country_name}", "GDP"), use_container_width=True)
 
 with col_right:
-    st.plotly_chart(make_line(i_plot, f"Investment per capita (i) (Index = 100) — {country_name}", "i"), use_container_width=True)
-    st.plotly_chart(make_line(c_plot, f"Consumption per capita (c) (Index = 100) — {country_name}", "c"), use_container_width=True)
-    st.plotly_chart(make_line(A_plot, f"R&D Growth (Index = 100) — {country_name}", "A"), use_container_width=True)
+    st.plotly_chart(make_line(i_plot, f"Investment per capita (i) — {country_name}", "i"), use_container_width=True)
+    st.plotly_chart(make_line(c_plot, f"Consumption per capita (c) — {country_name}", "c"), use_container_width=True)
+    st.plotly_chart(make_line(A_plot, f"R&D Growth — {country_name}", "A"), use_container_width=True)
 # -----------------------
 # Download results
 # ----------------
