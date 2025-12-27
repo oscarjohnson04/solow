@@ -165,8 +165,7 @@ def lf_path(N0, n, T):
 # Build paths
 # -----------------------
 N_path = lf_path(N0, n, T)
-A_path = romer_A_path(A0, lambda_RD, phi, theta, N_path)
-k0 = initial_k_from_output(y_data, A_path, alpha)
+A_path = romer_A_path(A0_calibrated, lambda_RD, phi, theta, N_path)
 k_path = solow_k_path(k0, A_path, alpha, s, delta, n, T)
 
 # Vectorized macro identities
