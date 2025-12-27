@@ -144,15 +144,18 @@ k0 = ky_ratio * y_data
 
 shock = np.random.normal(0, random_strength)
 
-def romer_A_path(A0_calibrated, lambda_RD, phi, theta, N_path):
+def romer_A_path(A0_calibrated, lambda_RD, phi, theta, N_path, random_strength):
     """
     Romer-style endogenous TFP growth with balanced growth.
     """
+    np.random.seed(42)
+    
     T = len(N_path)    
     A = np.zeros(T)    
     A[0] = A0_calibrated   
     N_norm = N_path / N_path[0]        
     for t in range(1, T):
+        shock = np.random.normal(0, random_strength)
         L_A = theta * N_norm[t-1]
         gA = lambda_RD * (L_A ** phi)
         if random_type == "TFP":
@@ -162,15 +165,22 @@ def romer_A_path(A0_calibrated, lambda_RD, phi, theta, N_path):
     
     return A
 
-def solow_k_path(k0, A_path, alpha, s, delta, n, T):
+def solow_k_path(k0, A_path, alpha, s, delta, n, T, random_strength):
     """k_{t+1} = [ s *A_path *k_t^α + (1-δ)k_t ] / (1+n)"""
+    np.random.seed(43)
     k = np.empty(T, dtype=float)
     k[0] = k0
     for t in range(1, T):
-        if random_type == "Capital Accumulation":
-            k[t] = ((s * A_path[t-1] * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)) * (1 + shock)
-        else:
-            k[t] = (s * A_path[t-1] * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)
+            # Deterministic Solow step
+            k_next = (s * A_path[t-1] * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)
+            
+            # DRAW SHOCK FOR THIS SPECIFIC YEAR
+            shock = np.random.normal(0, random_strength)
+            
+            if random_type == "Capital Accumulation":
+                k[t] = k_next * (1 + yearly_shock)
+            else:
+                k[t] = k_next
     return k
 
 def lf_path(N0, n, T):
@@ -181,8 +191,8 @@ def lf_path(N0, n, T):
 # Build paths
 # -----------------------
 N_path = lf_path(N0, n, T)
-A_path = romer_A_path(A0_calibrated, lambda_RD, phi, theta, N_path)
-k_path = solow_k_path(k0, A_path, alpha, s, delta, n, T)
+A_path = romer_A_path(A0_calibrated, lambda_RD, phi, theta, N_path, random_strength)
+k_path = solow_k_path(k0, A_path, alpha, s, delta, n, T, random_strength)
 
 # Vectorized macro identities
 y_path = A_path * (k_path ** alpha)          # output per (effective) worker
