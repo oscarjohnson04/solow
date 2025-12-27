@@ -270,6 +270,6 @@ st.download_button(
 )
 
 with st.expander("ℹ️ Information about the model"):
-    st.write("The model is a Solow growth model that includes endogenous TFP growth based on Paul Romer's research. \n
-            Calculations for the model can be found in the GitHub repo. \n
+    st.write("The model is a Solow growth model that includes endogenous TFP growth based on Paul Romer's research.  \n
+            Calculations for the model can be found in the GitHub repo.  \n
             For population growth, more weight is put on more recent data.")
