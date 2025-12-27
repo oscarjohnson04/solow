@@ -192,7 +192,7 @@ else:
     c_plot = c_path
     A_plot = A_path
     GDP_plot = GDP_path
-    y_label = "Value (USD / Units)")
+    y_label = "Value (USD / Units)"
 
 # -----------------------
 # Headline & country panel
