@@ -138,7 +138,7 @@ def romer_A_path(A0, lambda_RD, phi, theta, N_path):
     for t in range(1, T):        
         L_A = theta * N_norm[t-1]                        
         gA = lambda_RD * (L_A ** phi)         
-        A[t] = A[t-1] + np.exp(gA)    
+        A[t] = A[t-1] * np.exp(gA)    
     
     return A
 
@@ -158,7 +158,7 @@ def lf_path(N0, n, T):
 # Build paths
 # -----------------------
 N_path = lf_path(N0, n, T)
-A_path = romer_A_path(A0, N_path, lambda_RD, phi, theta)
+A_path = romer_A_path(A0, lambda_RD, phi, theta, N_path)
 k0 = initial_k_from_output(y_data, A0, alpha)
 k_path = solow_k_path(k0, A_path, alpha, s, delta, n, T)
 
