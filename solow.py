@@ -99,13 +99,15 @@ with st.sidebar:
                          help="World average is ~3.0. This determines how much capital exists relative to GDP.")
     alpha = st.number_input("Capital share (α)", 0.01, 0.99, 0.33)
     T = st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1)
+    delta = st.number_input("Capital Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
+
     
     st.markdown("---")
-    st.subheader("Romer R&D Settings")
+    st.subheader("Romer R&D Settings",
+                help="These parameters are lower for developing countries.")
     lambda_RD = st.number_input("R&D effectiveness (λ)", min_value=0.0, max_value=1.0, value=0.05, step=0.10, format="%.2f")
     phi = st.number_input("R&D returns to scale (φ)", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
     theta = st.number_input("R&D labor share (θ)", min_value=0.0, max_value=1.0, value=0.02, step=0.01)
-    delta = st.number_input("Capital Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
 
 # Country selection (top of main)
 countries = solow_df["country"].sort_values().unique()
