@@ -95,8 +95,8 @@ with st.sidebar:
     st.markdown("---")
     st.subheader("Model parameters")
     display_mode = st.radio("Display Units:", ["Index (Base 100)", "Absolute ($ Value)"])    
-    ky_ratio = st.slider("Initial Capital-Output Ratio (k/y)", 1.0, 6.0, 3.0, 
-                         help="World average is ~3.0. This determines how much capital exists relative to GDP.")
+    ky_ratio = st.slider("Initial Capital-Output Ratio (k/y)", 1.0, 25., 3.0, 
+                         help="This determines how much capital exists relative to GDP.")
     alpha = st.number_input("Capital share (α)", 0.01, 0.99, 0.33)
     T = st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1)
     delta = st.number_input("Capital Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
