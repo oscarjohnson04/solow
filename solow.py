@@ -168,7 +168,7 @@ def solow_k_path(k0, A_path, alpha, s, delta, n, T):
     k[0] = k0
     for t in range(1, T):
         if random_type == "Capital Accumulation":
-            k[t] = ((s * A_path[t-1] * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)) * shock
+            k[t] = ((s * A_path[t-1] * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)) * (1 + shock)
         else:
             k[t] = (s * A_path[t-1] * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)
     return k
