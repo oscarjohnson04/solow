@@ -178,7 +178,7 @@ def solow_k_path(k0, A_path, alpha, s, delta, n, T, random_strength):
             shock = np.random.normal(0, random_strength)
             
             if random_type == "Capital Accumulation":
-                k[t] = k_next * (1 + yearly_shock)
+                k[t] = k_next * (1 + shock)
             else:
                 k[t] = k_next
     return k
