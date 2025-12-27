@@ -87,6 +87,11 @@ solow_df = load_and_process_data(START_DATE, END_DATE, INDICATORS)
 # Sidebar / Inputs
 # -----------------------
 with st.sidebar:
+    st.subheader("Randomness")
+    random_type = st.radio("Location of Shock:", ["TFP", "Capital Accumulation"])
+    random_strength = st.slider("Randomness Strength", 0.0, 5.0, 1.0)
+
+    st.markdown("---")
     st.subheader("Model parameters")
     display_mode = st.radio("Display Units:", ["Index (Base 100)", "Absolute ($ Value)"])    
     ky_ratio = st.slider("Initial Capital-Output Ratio (k/y)", 1.0, 6.0, 3.0, 
@@ -137,6 +142,8 @@ A0_calibrated = y_data / ((ky_ratio * y_data) ** alpha)
 
 k0 = ky_ratio * y_data
 
+shock = np.random.normal(0, random_strength)
+
 def romer_A_path(A0_calibrated, lambda_RD, phi, theta, N_path):
     """
     Romer-style endogenous TFP growth with balanced growth.
@@ -148,7 +155,10 @@ def romer_A_path(A0_calibrated, lambda_RD, phi, theta, N_path):
     for t in range(1, T):
         L_A = theta * N_norm[t-1]
         gA = lambda_RD * (L_A ** phi)
-        A[t] = A[t-1] * (1 + gA)
+        if random_type == "TFP":
+            A[t] = A[t-1] * (1 + gA + shock)
+        else:
+            A[t] = A[t-1] * (1 + gA)
     
     return A
 
@@ -157,7 +167,10 @@ def solow_k_path(k0, A_path, alpha, s, delta, n, T):
     k = np.empty(T, dtype=float)
     k[0] = k0
     for t in range(1, T):
-        k[t] = (s * A_path[t-1] * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)
+        if random_type == "Capital Accumulation":
+            k[t] = ((s * A_path[t-1] * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)) * shock
+        else:
+            k[t] = (s * A_path[t-1] * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)
     return k
 
 def lf_path(N0, n, T):
