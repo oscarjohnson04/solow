@@ -142,12 +142,12 @@ def romer_A_path(A0, lambda_RD, phi, theta, N_path):
     
     return A
 
-def solow_k_path(k0, A, alpha, s, delta, n, T):
-    """k_{t+1} = [ s*A*k_t^α + (1-δ)k_t ] / (1+n)"""
+def solow_k_path(k0, A_path, alpha, s, delta, n, T):
+    """k_{t+1} = [ s*A_path*k_t^α + (1-δ)k_t ] / (1+n)"""
     k = np.empty(T, dtype=float)
     k[0] = k0
     for t in range(1, T):
-        k[t] = (s * A[t-1] * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)
+        k[t] = (s * A_path[t-1] * k[t-1] ** alpha) / (1.0 + n) + ((1.0 - delta) * k[t-1]) / (1.0 + n)
     return k
 
 def lf_path(N0, n, T):
