@@ -103,13 +103,14 @@ with st.sidebar:
     T = st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1)
 
 # Country selection (top of main)
+countries = solow_df["country"].sort_values().unique()
 default_country = "Canada"
 
 try:
     default_ix = list(countries).index(default_country)
 except ValueError:
     default_ix = 0
-countries = solow_df["country"].sort_values().unique()
+
 selected_country = st.selectbox("Select a country:", countries, index=default_ix)
 
 # Current country row
