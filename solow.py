@@ -258,12 +258,13 @@ with col_right:
 
 paths_df = pd.DataFrame({
     "t": time,
-    "k": k_idx,
-    "y": y_idx,
-    "i": i_idx,
-    "c": c_idx,
+    "k": k_plot,
+    "y": y_plot,
+    "i": i_plot,
+    "c": c_plot,
     "N": N_path,
-    "GDP": GDP_idx
+    "GDP": GDP_plot,
+    "TFP": A_plot
 })
 st.download_button(
     "Download simulated paths (CSV)",
