@@ -306,5 +306,5 @@ with st.expander("ℹ️ Information about the model"):
     st.write("The model is a Solow growth model that includes endogenous TFP growth based on Paul Romer's research.  \n"
             "Calculations for the model can be found in the GitHub repo.  \n"
             "For population growth, more weight is put on more recent data.  \n"
-            "The capital output ratio is used to determine the initial amount of capital, which is then used to determine the initial amount of A (Total Factor Productivity). \n"
-            "The savings rate in the table is the gross domestic savings rate from the World Bank. To use that savings rate, adjust the savings rate slider.  \n")
+            "The capital output ratio is used to determine the initial amount of capital, which is then used to determine the initial amount of A (Total Factor Productivity).  \n"
+            "The savings rate in the table is the gross domestic savings rate from the World Bank. To use that savings rate, adjust the savings rate slider.")
