@@ -98,8 +98,9 @@ with st.sidebar:
     ky_ratio = st.slider("Initial Capital-Output Ratio (k/y)", 1.0, 25., 3.0, 
                          help="This determines how much capital exists relative to GDP.")
     alpha = st.number_input("Capital share (α)", 0.01, 0.99, 0.33)
+    s = st.number_input("Savings rate (s)", min_value=0.0, max_value=1.0, value=0.20, step=0.01, format="%.2f")
+    delta = st.number_input("Capital Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f") 
     T = st.number_input("Simulation periods (T)", min_value=1, max_value=2000, value=100, step=1)
-    delta = st.number_input("Capital Depreciation (δ)", min_value=0.0, max_value=1.0, value=0.05, step=0.01, format="%.2f")
 
     
     st.markdown("---")
@@ -125,7 +126,7 @@ row = solow_df.loc[solow_df["country"] == selected_country].iloc[0]
 y_data = float(row["GDPi"])                   # observed GDP per worker (latest)
 n = float(row["Mean_Population_Growth"]) if pd.notna(row["Mean_Population_Growth"]) else 0.01
 N0 = float(row["Population"])
-s = float(row["S_Rate"]) if pd.notna(row["S_Rate"]) else 0.20
+s2 = float(row["S_Rate"]) if pd.notna(row["S_Rate"]) else 0.20
 country_name = row["country"]
 latest_year = row["date"].year if not pd.isna(row["date"]) else "N/A"
 
@@ -241,7 +242,7 @@ summary_df = pd.DataFrame({
         row["Real_GDP"],
         y_data,
         n,
-        s
+        s2
     ]
 })
 
@@ -273,7 +274,7 @@ col_left, col_right = st.columns(2)
 
 with col_left:
     st.plotly_chart(make_line(k_plot, f"Capital Per Capita — {country_name}", "Capital Per Capita"), use_container_width=True)
-    st.plotly_chart(make_line(y_plot, f"Output Per Capita — {country_name}", "Output Per Capita"), use_container_width=True)
+    st.plotly_chart(make_line(y_plot, f"GDP Per Capita — {country_name}", "GDP Per Capita"), use_container_width=True)
     st.plotly_chart(make_line(GDP_plot, f"Total GDP — {country_name}", "Total GDP"), use_container_width=True)
 
 with col_right:
