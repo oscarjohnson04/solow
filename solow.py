@@ -89,7 +89,7 @@ solow_df = load_and_process_data(START_DATE, END_DATE, INDICATORS)
 with st.sidebar:
     st.subheader("Randomness")
     random_type = st.radio("Location of Shock:", ["TFP", "Capital Accumulation"])
-    random_strength = st.slider("Randomness Strength", 0.0, 1.0, 0.25,
+    random_strength = st.slider("Randomness Strength", 0.0, 1.0, 0.05,
                                help="If Randomness Strength = 0, then there is no randomness and the model works as normal.")
 
     st.markdown("---")
@@ -108,7 +108,7 @@ with st.sidebar:
                 help="These parameters are lower for developing countries.")
     lambda_RD = st.number_input("R&D effectiveness (λ)", min_value=0.0, max_value=1.0, value=0.05, step=0.10, format="%.2f")
     phi = st.number_input("R&D labour decreasing returns to scale (φ)", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
-    theta = st.number_input("R&D labor share (θ)", min_value=0.0, max_value=1.0, value=0.02, step=0.01)
+    theta = st.number_input("R&D labour share (θ)", min_value=0.0, max_value=1.0, value=0.02, step=0.01)
 
 # Country selection (top of main)
 countries = solow_df["country"].sort_values().unique()
