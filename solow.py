@@ -107,7 +107,7 @@ with st.sidebar:
     st.subheader("Romer R&D Settings",
                 help="These parameters are lower for developing countries.")
     lambda_RD = st.number_input("R&D effectiveness (λ)", min_value=0.0, max_value=1.0, value=0.05, step=0.10, format="%.2f")
-    phi = st.number_input("R&D returns to scale (φ)", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
+    phi = st.number_input("R&D labour decreasing returns to scale (φ)", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
     theta = st.number_input("R&D labor share (θ)", min_value=0.0, max_value=1.0, value=0.02, step=0.01)
 
 # Country selection (top of main)
@@ -305,4 +305,6 @@ st.download_button(
 with st.expander("ℹ️ Information about the model"):
     st.write("The model is a Solow growth model that includes endogenous TFP growth based on Paul Romer's research.  \n"
             "Calculations for the model can be found in the GitHub repo.  \n"
-            "For population growth, more weight is put on more recent data.")
+            "For population growth, more weight is put on more recent data.  \n"
+            "The capital output ratio is used to determine the initial amount of capital, which is then used to determine the initial amount of A (Total Factor Productivity). \n"
+            "The savings rate in the table is the gross domestic savings rate from the World Bank. To use that savings rate, adjust the savings rate slider.  \n")
