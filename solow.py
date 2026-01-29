@@ -12,8 +12,8 @@ st.title("Solow-Romer Growth Model Explorer")
 # -----------------------
 # Parameters & Indicators
 # -----------------------
-START_DATE = "1970"
-END_DATE = "2024"
+START_DATE = dt.datetime(1970, 1, 1)
+END_DATE = dt.datetime(2024, 1, 1)
 INDICATORS = {
     "SP.POP.TOTL": "Population",   # Labour force (total)
     "NY.GDP.MKTP.KD": "Real_GDP",        # GDP (constant 2015 US$)
@@ -25,8 +25,18 @@ INDICATORS = {
 # -----------------------
 @st.cache_data 
 def load_and_process_data(start_date, end_date, indicators):
+    try:
     # Fetch data from World Bank API
-    data = wbdata.get_dataframe(indicators, date=(start_date, end_date))
+        data = wbdata.get_dataframe(indicators, date=(start_date, end_date))
+        if data is None or data.empty:
+            st.error("The World Bank returned an empty dataset.")
+            st.stop()
+
+    except Exception as e:
+        st.error(f"Failed to fetch data from World Bank: {e}")
+        st.info("This often happens if the World Bank API is temporarily down or if the request timed out.")
+        st.stop()
+        
     data = data.reset_index()
 
     # List of regions/aggregates to exclude
