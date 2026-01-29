@@ -12,8 +12,8 @@ st.title("Solow-Romer Growth Model Explorer")
 # -----------------------
 # Parameters & Indicators
 # -----------------------
-START_DATE = dt.datetime(1970, 1, 1)
-END_DATE = dt.datetime(2024, 1, 1)
+START_DATE = "1970"
+END_DATE = "2024"
 INDICATORS = {
     "SP.POP.TOTL": "Population",   # Labour force (total)
     "NY.GDP.MKTP.KD": "Real_GDP",        # GDP (constant 2015 US$)
